@@ -1,0 +1,25 @@
+# Root ignores for generated / runtime data
+
+# Minecraft server runtime (Docker volumes)
+server/minecraft-data/
+server/minecraft-logs/
+server/minecraft-plugins/
+
+# Plugin build outputs
+plugin/build/
+plugin/.gradle/
+
+# Gradle (if present at root)
+.gradle/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.*

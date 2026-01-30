@@ -1,0 +1,37 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 120
+tab_width = 4
+trim_trailing_whitespace = true
+ij_continuation_indent_size = 8
+
+[{*.kt,*.kts}]
+# ktlint rules
+# ktlint_code_style = intellij
+ktlint_standard_no-wildcard-imports = true
+ktlint_standard_filename = true
+ktlint_standard_trailing-comma-on-call-site = true
+ktlint_standard_trailing-comma-on-declaration-site = true
+ktlint_standard_no-consecutive-blank-lines = true
+ktlint_standard_no-empty-first-line-in-method-block = true
+ktlint_function_signature_rule_force_multiline = true
+
+# kotlin rules
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_name_count_to_use_star_import = 999
+ij_kotlin_name_count_to_use_star_import_for_members = 999
+ij_kotlin_packages_to_use_import_on_demand = ""
+ij_kotlin_imports_layout=*,java.**,javax.**,kotlin.**,^
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{json,json5}]
+indent_size = 2

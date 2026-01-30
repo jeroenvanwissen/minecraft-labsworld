@@ -1,0 +1,29 @@
+services:
+  minecraft:
+    image: itzg/minecraft-server:java21
+    container_name: minecraft-server
+    pull_policy: daily
+    tty: true
+    stdin_open: true
+    ports:
+      - "25565:25565"
+    env_file:
+      - .env
+    environment:
+      EULA: "TRUE"
+      MEMORY: "4G"
+      TYPE: "PAPER"
+      VERSION: "1.21.11"
+      # Keep RCON off by default. If you need it, set ENABLE_RCON=true and RCON_PASSWORD in server/.env
+      ENABLE_RCON: ${ENABLE_RCON:-false}
+      RCON_PASSWORD: ${RCON_PASSWORD:-}
+    volumes:
+      - ./minecraft-data:/data
+      - ./minecraft-logs:/logs
+      - ./minecraft-plugins:/plugins
+    healthcheck:
+      test: mc-health
+      start_period: 1m
+      interval: 10s
+      retries: 20
+    restart: unless-stopped

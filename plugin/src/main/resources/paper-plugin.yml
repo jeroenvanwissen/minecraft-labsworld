@@ -1,0 +1,14 @@
+name: LabsWorld
+version: '${version}'
+main: nl.jeroenlabs.labsWorld.LabsWorld
+api-version: '1.21'
+
+permissions:
+
+  labsworld.admin:
+    description: Allows using /labsworld commands
+    default: op
+
+  labsworld.npcspawnpoint:
+    description: Allows placing and retrieving NPC Spawn Point blocks
+    default: op

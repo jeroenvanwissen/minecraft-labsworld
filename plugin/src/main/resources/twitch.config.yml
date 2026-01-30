@@ -1,0 +1,64 @@
+channel_name: ""
+
+# Twitch auth is read from environment variables (recommended with docker-compose env_file):
+# - TWITCH_CLIENT_ID
+# - TWITCH_CLIENT_SECRET
+# - TWITCH_REFRESH_TOKEN   (recommended)
+# - TWITCH_ACCESS_TOKEN    (optional fallback; not recommended long-term)
+# - TWITCH_CHANNEL_NAME    (optional; overrides channel_name above)
+
+# Optional: command cooldowns (milliseconds)
+# - default_cooldown_ms applies to all commands unless overridden
+# - cooldown_ms allows per-command overrides by command name
+commands:
+  # Cooldown applied to all commands unless overridden below.
+  # Set to 0 to disable global cooldown.
+  default_cooldown_ms: 2000
+
+  # Per-command cooldown overrides by command name.
+  # Set to 0 to disable cooldown for a specific command.
+  cooldown_ms:
+    lw: 2000
+
+# Optional: Channel Point Redeems -> plugin handlers
+#
+# How it works:
+# - You create a Channel Point Reward in Twitch.
+# - Put its reward_id (recommended) or reward_title below.
+# - Set a handler key (see the built-in list below).
+# - Optionally pass params and a per-user cooldown.
+redeems:
+  enabled: false
+
+  # When true, unmatched redeems are logged to console (helps you find reward_id/title).
+  log_unmatched: true
+
+  # Bindings are checked top-to-bottom; the first match wins.
+  bindings:
+    # Example: spawn the redeemer's NPC at the spawn point
+    # - reward_id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    #   handler: "npc.spawn"
+    #   cooldown_ms: 0
+    #   params:
+    #     message: "@{user} spawned their NPC!"
+
+    # Example: make all Twitch NPCs aggro a random online player
+    # - reward_title: "NPC AGGRO"
+    #   handler: "npc.aggro"
+    #   cooldown_ms: 10000
+    #   params:
+    #     seconds: 30
+
+    # Example: make all Twitch NPCs attack a random online player
+    # - reward_title: "NPC ATTACK"
+    #   handler: "npc.attack"
+    #   cooldown_ms: 15000
+    #   params:
+    #     seconds: 30
+    #     hearts_per_hit: 1.0
+
+    # Example: send a message to Twitch chat
+    # - reward_title: "SAY HI"
+    #   handler: "chat.say"
+    #   params:
+    #     message: "Thanks @{user}! You redeemed {reward}."
