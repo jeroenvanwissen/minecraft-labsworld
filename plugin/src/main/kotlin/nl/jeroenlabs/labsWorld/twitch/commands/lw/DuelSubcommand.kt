@@ -1,82 +1,40 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
-import nl.jeroenlabs.labsWorld.LabsWorld
-import nl.jeroenlabs.labsWorld.npc.startNpcDuel
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 
-class DuelSubcommand(
-    private val context: CommandContext,
-) : LwSubcommand {
-    override val name: String = "duel"
+object DuelSubcommand : LwSubcommand {
+    override val name = "duel"
 
-    override fun handle(invocation: CommandInvocation) {
-        val plugin = context.plugin as? LabsWorld
-        if (plugin == null) {
-            invocation.replyMention("Duel failed: plugin type mismatch")
-            return
+    override fun handle(ctx: CommandContext, inv: CommandInvocation) {
+        val plugin = ctx.labsWorld() ?: return inv.replyMention("Plugin error")
+
+        // Require invoker to have an NPC
+        if (plugin.getStoredLinkedUserName(inv.userId) == null) {
+            return inv.replyMention("You don't have an NPC yet. Run !lw spawn first.")
         }
 
-        // Require the invoker to already have an NPC linked.
-        val invokerStoredName = plugin.getStoredLinkedUserName(invocation.userId)
-        if (invokerStoredName == null) {
-            invocation.replyMention("You don't have an NPC yet. Run !lw spawn first.")
-            return
-        }
-
-        val rawTarget = invocation.args.getOrNull(1)
+        val rawTarget = inv.args.getOrNull(1)
         if (rawTarget.isNullOrBlank()) {
-            invocation.replyMention("Usage: !lw duel @TwitchUser")
-            return
+            return inv.replyMention("Usage: !lw duel @TwitchUser")
         }
 
         val targetName = sanitizeTwitchName(rawTarget)
-        if (targetName.isNullOrBlank()) {
-            invocation.replyMention("Usage: !lw duel @TwitchUser")
-            return
-        }
-
-        if (targetName.equals(invocation.userName, ignoreCase = true)) {
-            invocation.replyMention("You can't duel yourself.")
-            return
+        if (targetName.isBlank() || targetName.equals(inv.userName, ignoreCase = true)) {
+            return inv.replyMention("Invalid target. Use: !lw duel @TwitchUser")
         }
 
         val targetUserId = plugin.resolveLinkedUserIdByUserName(targetName)
         if (targetUserId == null) {
-            invocation.replyMention("No NPC found for @${targetName}. Ask them to run !lw spawn first.")
-            return
+            return inv.replyMention("No NPC found for @$targetName. They need to run !lw spawn first.")
         }
 
         val targetStoredName = plugin.getStoredLinkedUserName(targetUserId) ?: targetName
 
-        // All NPC/entity operations must happen on the Bukkit main thread.
-        plugin.server.scheduler.runTask(
-            plugin,
-            Runnable {
-                val result = startNpcDuel(
-                    plugin = plugin,
-                    userAId = invocation.userId,
-                    userAName = invocation.userName,
-                    userBId = targetUserId,
-                    userBName = targetStoredName,
-                    announce = { msg -> invocation.reply(msg) },
-                )
-
-                result
-                    .onSuccess {
-                        // Duel start/end messages are announced by the duel engine.
-                    }
-                    .onFailure { err ->
-                        invocation.replyMention("Duel failed: ${err.message ?: err::class.simpleName}")
-                    }
-            },
-        )
-    }
-
-    private fun sanitizeTwitchName(raw: String): String {
-        val trimmed = raw.trim()
-        val noAt = if (trimmed.startsWith("@")) trimmed.drop(1) else trimmed
-        // Twitch usernames are typically [A-Za-z0-9_]. Keep it permissive but safe.
-        return noAt.takeWhile { it.isLetterOrDigit() || it == '_' }
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            plugin.startNpcDuel(inv.userId, inv.userName, targetUserId, targetStoredName) { msg ->
+                inv.reply(msg)
+            }.onFailure { inv.replyMention("Duel failed: ${it.message}") }
+        })
     }
 }

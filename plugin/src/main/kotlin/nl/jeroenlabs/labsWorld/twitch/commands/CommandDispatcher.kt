@@ -3,6 +3,7 @@ package nl.jeroenlabs.labsWorld.twitch.commands
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
+import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -10,10 +11,19 @@ import java.util.logging.Level
 class CommandDispatcher(
     private val plugin: JavaPlugin,
     private val twitchClient: TwitchClient,
-    private val registry: CommandRegistry,
+    private val twitchConfigManager: TwitchConfigManager,
 ) {
+    private val commands = ConcurrentHashMap<String, Command<*>>()
     private val lastCommandAtMsByUserAndCommand = ConcurrentHashMap<String, Long>()
     private val initializedCommands = ConcurrentHashMap.newKeySet<String>()
+
+    val context: CommandContext by lazy {
+        CommandContext(plugin, twitchClient, twitchConfigManager)
+    }
+
+    fun register(command: Command<*>) {
+        commands[command.name.lowercase()] = command
+    }
 
     fun handle(event: ChannelMessageEvent) {
         val raw = event.message
@@ -25,12 +35,11 @@ class CommandDispatcher(
         val parts = raw.substring(1).trim().split(" ").filter { it.isNotBlank() }
         val commandName = parts.firstOrNull() ?: return
 
-        val command = registry.getCommand(commandName) ?: return
+        val command = commands[commandName.lowercase()] ?: return
 
-        val configManager = registry.context.twitchConfigManager
         val cooldownMs =
-            configManager.getCommandCooldownMs(command.name)
-                ?: configManager.getDefaultCommandCooldownMs()
+            twitchConfigManager.getCommandCooldownMs(command.name)
+                ?: twitchConfigManager.getDefaultCommandCooldownMs()
                 ?: command.cooldownMs
         if (cooldownMs > 0) {
             val key = "${userId}:${command.name.lowercase()}"
@@ -55,7 +64,7 @@ class CommandDispatcher(
         }
 
         val invocation = CommandInvocation(
-            context = registry.context,
+            context = context,
             event = event,
             commandName = commandName,
             args = parts.drop(1),

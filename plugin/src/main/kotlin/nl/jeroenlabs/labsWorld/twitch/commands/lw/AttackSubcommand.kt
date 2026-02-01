@@ -1,67 +1,35 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
-import nl.jeroenlabs.labsWorld.LabsWorld
 import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
-import nl.jeroenlabs.labsWorld.npc.attackLinkedNpcs
-import nl.jeroenlabs.labsWorld.npc.parseDamageHearts
-import nl.jeroenlabs.labsWorld.npc.parseDurationSeconds
-import nl.jeroenlabs.labsWorld.npc.pickTargetPlayer
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 
-class AttackSubcommand(
-    private val context: CommandContext,
-) : LwSubcommand {
-    override val name: String = "attack"
+object AttackSubcommand : LwSubcommand {
+    override val name = "attack"
 
-    override fun handle(invocation: CommandInvocation) {
-        val userName = invocation.userName
-
-        if (!TwitchChatAuth.isBroadcasterOrModerator(invocation.event)) {
-            invocation.reply("@${userName} You don't have permission to use !lw attack.")
-            return
+    override fun handle(ctx: CommandContext, inv: CommandInvocation) {
+        if (!TwitchChatAuth.isBroadcasterOrModerator(inv.event)) {
+            return inv.replyMention("You don't have permission.")
         }
 
-        val plugin = context.plugin as? LabsWorld
-        if (plugin == null) {
-            invocation.reply("@${userName} Attack failed: plugin type mismatch")
-            return
-        }
+        val plugin = ctx.labsWorld() ?: return inv.replyMention("Plugin error")
 
-        plugin.server.scheduler.runTask(
-            plugin,
-            Runnable {
-                val targetName = invocation.args.getOrNull(1)
-                val secondsArg = invocation.args.getOrNull(2)
-                val heartsArg = invocation.args.getOrNull(3)
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            val target = plugin.pickTargetPlayer(inv.args.getOrNull(1), allowRandom = false)
+            if (target == null) {
+                inv.replyMention("Usage: !lw attack <player> [seconds] [hearts]")
+                return@Runnable
+            }
 
-                val durationSeconds = parseDurationSeconds(secondsArg, defaultSeconds = 30)
-                val damageHearts = parseDamageHearts(heartsArg, defaultHearts = 1.0)
+            val seconds = parseDuration(inv.args.getOrNull(2))
+            val hearts = parseDamage(inv.args.getOrNull(3))
 
-                val targetPlayer = pickTargetPlayer(plugin, targetName, allowRandom = false)
-
-                if (targetPlayer == null) {
-                    invocation.reply(
-                        "@${userName} Usage: !lw attack <minecraftPlayerName> [seconds] [heartsPerHit] (or only 1 player must be online)",
-                    )
-                    return@Runnable
+            plugin.startAttackAllNpcs(target, seconds, hearts)
+                .onSuccess { count ->
+                    if (count <= 0) inv.replyMention("No Twitch NPCs found.")
+                    else inv.replyMention("$count NPC(s) attacking ${target.name} for ${seconds}s (${hearts}❤/hit).")
                 }
-
-                val result = attackLinkedNpcs(plugin, targetPlayer, durationSeconds, damageHearts)
-                result
-                    .onSuccess { count ->
-                        if (count <= 0) {
-                            invocation.reply("@${userName} No Twitch NPCs found.")
-                        } else {
-                            invocation.reply(
-                                "@${userName} ${count} Twitch NPC(s) are attacking ${targetPlayer.name} for ${durationSeconds}s (damage=${damageHearts}❤/hit).",
-                            )
-                        }
-                    }
-                    .onFailure { err ->
-                        invocation.reply("@${userName} Attack failed: ${err.message ?: err::class.simpleName}")
-                    }
-            },
-        )
+                .onFailure { inv.replyMention("Attack failed: ${it.message}") }
+        })
     }
 }

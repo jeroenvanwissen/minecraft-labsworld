@@ -11,15 +11,16 @@ class RedeemDispatcher(
     private val plugin: JavaPlugin,
     private val twitchClient: TwitchClient,
     private val twitchConfigManager: TwitchConfigManager,
-    private val registry: RedeemHandlerRegistry,
 ) {
+    private val handlers = ConcurrentHashMap<String, RedeemHandler>()
     private val lastAtMsByUserAndBinding = ConcurrentHashMap<String, Long>()
 
-    fun handle(event: ChannelPointsCustomRewardRedemptionEvent) {
-        plugin.logger.warning("is redeems enabled? ${twitchConfigManager.isRedeemsEnabled()}")
-        if (!twitchConfigManager.isRedeemsEnabled()) return
+    fun register(handler: RedeemHandler) {
+        handlers[handler.key.lowercase()] = handler
+    }
 
-        plugin.logger.info("Handling redeem event for ${event}")
+    fun handle(event: ChannelPointsCustomRewardRedemptionEvent) {
+        if (!twitchConfigManager.isRedeemsEnabled()) return
 
         val invocation = RedeemInvocation.fromEvent(event)
         if (invocation == null) {
@@ -37,10 +38,10 @@ class RedeemDispatcher(
             return
         }
 
-        val handler = registry.get(binding.handler)
+        val handler = handlers[binding.handler.lowercase()]
         if (handler == null) {
             plugin.logger.warning(
-                "Redeem binding matched rewardId='${invocation.rewardId}' title='${invocation.rewardTitle}', but handler '${binding.handler}' is not registered. Registered=${registry.keys()}",
+                "Redeem binding matched rewardId='${invocation.rewardId}' title='${invocation.rewardTitle}', but handler '${binding.handler}' is not registered. Registered=${handlers.keys}",
             )
             return
         }

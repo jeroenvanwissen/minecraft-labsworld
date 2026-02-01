@@ -8,8 +8,6 @@ import nl.jeroenlabs.labsWorld.npc.NpcSpawnPointManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchClientManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchEventHandler
-import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
-import nl.jeroenlabs.labsWorld.twitch.commands.CommandRegistry
 import nl.jeroenlabs.labsWorld.commands.LabsWorldPaperCommand
 import org.bukkit.Location
 import org.bukkit.entity.Player
@@ -23,7 +21,6 @@ class LabsWorld : JavaPlugin() {
     private lateinit var twitchConfigManager: TwitchConfigManager
     private lateinit var twitchClientManager: TwitchClientManager
     private lateinit var twitchEventHandler: TwitchEventHandler
-    private lateinit var commandRegistry: CommandRegistry
     private lateinit var npcManager: NpcManager
     private lateinit var npcSpawnPointManager: NpcSpawnPointManager
     private lateinit var npcLinkManager: NpcLinkManager
@@ -51,13 +48,11 @@ class LabsWorld : JavaPlugin() {
         val twitchConnected = twitchClientManager.init()
 
         if (twitchConnected) {
-            commandRegistry = buildCommandRegistry()
             twitchEventHandler =
                 TwitchEventHandler(
                     this,
                     twitchClientManager.getTwitchClient(),
                     twitchConfigManager,
-                    commandRegistry,
                     twitchClientManager,
                 )
             twitchEventHandler.registerEventHandlers()
@@ -138,15 +133,6 @@ class LabsWorld : JavaPlugin() {
         )
     }
 
-    private fun buildCommandRegistry(): CommandRegistry =
-        CommandRegistry(
-            CommandContext(
-                plugin = this,
-                twitchClient = twitchClientManager.getTwitchClient(),
-                twitchConfigManager = twitchConfigManager,
-            ),
-        )
-
     fun reloadTwitch(): Result<Unit> {
         if (!twitchReloadInProgress.compareAndSet(false, true)) {
             return Result.failure(IllegalStateException("Reload already in progress"))
@@ -163,13 +149,11 @@ class LabsWorld : JavaPlugin() {
                     error("Twitch connect failed; check twitch.config.yml")
                 }
 
-                commandRegistry = buildCommandRegistry()
                 twitchEventHandler =
                     TwitchEventHandler(
                         this,
                         twitchClientManager.getTwitchClient(),
                         twitchConfigManager,
-                        commandRegistry,
                         twitchClientManager,
                     )
                 twitchEventHandler.registerEventHandlers()

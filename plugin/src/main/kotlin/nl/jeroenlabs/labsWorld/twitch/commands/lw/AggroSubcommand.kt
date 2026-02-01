@@ -1,56 +1,32 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
-import nl.jeroenlabs.labsWorld.npc.aggroLinkedNpcs
-import nl.jeroenlabs.labsWorld.npc.pickTargetPlayer
-import nl.jeroenlabs.labsWorld.LabsWorld
 import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 
-class AggroSubcommand(
-    private val context: CommandContext,
-) : LwSubcommand {
-    override val name: String = "aggro"
+object AggroSubcommand : LwSubcommand {
+    override val name = "aggro"
 
-    override fun handle(invocation: CommandInvocation) {
-        val userName = invocation.userName
-
-        if (!TwitchChatAuth.isBroadcasterOrModerator(invocation.event)) {
-            invocation.reply("@${userName} You don't have permission to use !lw aggro.")
-            return
+    override fun handle(ctx: CommandContext, inv: CommandInvocation) {
+        if (!TwitchChatAuth.isBroadcasterOrModerator(inv.event)) {
+            return inv.replyMention("You don't have permission.")
         }
 
-        val plugin = context.plugin as? LabsWorld
-        if (plugin == null) {
-            invocation.reply("@${userName} Aggro failed: plugin type mismatch")
-            return
-        }
+        val plugin = ctx.labsWorld() ?: return inv.replyMention("Plugin error")
 
-        // Aggro uses Bukkit APIs; run on main thread.
-        plugin.server.scheduler.runTask(
-            plugin,
-            Runnable {
-                val targetName = invocation.args.getOrNull(1)
-                val targetPlayer = pickTargetPlayer(plugin, targetName, allowRandom = false)
+        plugin.server.scheduler.runTask(plugin, Runnable {
+            val target = plugin.pickTargetPlayer(inv.args.getOrNull(1), allowRandom = false)
+            if (target == null) {
+                inv.replyMention("Usage: !lw aggro <minecraftPlayer>")
+                return@Runnable
+            }
 
-                if (targetPlayer == null) {
-                    invocation.reply("@${userName} Usage: !lw aggro <minecraftPlayerName> (or only 1 player must be online)")
-                    return@Runnable
+            plugin.startAggroAllNpcs(target, 30)
+                .onSuccess { count ->
+                    if (count <= 0) inv.replyMention("No Twitch NPCs found.")
+                    else inv.replyMention("Sent $count NPC(s) after ${target.name} for 30s.")
                 }
-
-                val result = aggroLinkedNpcs(plugin, targetPlayer, 30)
-                result
-                    .onSuccess { count ->
-                        if (count <= 0) {
-                            invocation.reply("@${userName} No Twitch NPCs found.")
-                        } else {
-                            invocation.reply("@${userName} Sent ${count} Twitch NPC(s) after ${targetPlayer.name} for 30s.")
-                        }
-                    }
-                    .onFailure { err ->
-                        invocation.reply("@${userName} Aggro failed: ${err.message ?: err::class.simpleName}")
-                    }
-            },
-        )
+                .onFailure { inv.replyMention("Aggro failed: ${it.message}") }
+        })
     }
 }
