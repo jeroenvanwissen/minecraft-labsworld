@@ -31,6 +31,7 @@ class LabsWorld : JavaPlugin() {
     private val twitchReloadInProgress = AtomicBoolean(false)
 
     override fun onEnable() {
+        dataFolder.mkdirs()
         initializeComponents()
     }
 

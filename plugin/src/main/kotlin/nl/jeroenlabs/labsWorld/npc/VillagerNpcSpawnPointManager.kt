@@ -47,9 +47,6 @@ class VillagerNpcSpawnPointManager(
     }
 
     fun init() {
-        if (!plugin.dataFolder.exists()) {
-            plugin.dataFolder.mkdirs()
-        }
         load()
     }
 
@@ -98,9 +95,8 @@ class VillagerNpcSpawnPointManager(
         save()
     }
 
-    fun canUseSpawnPoints(player: Player): Boolean {
-        return player.hasPermission("labsworld.admin") || player.hasPermission("labsworld.npcspawnpoint")
-    }
+    fun canUseSpawnPoints(player: Player): Boolean =
+        player.hasPermission("labsworld.admin") || player.hasPermission("labsworld.npcspawnpoint")
 
     fun getSpawnPointLocations(): List<Location> {
         return spawnPoints.mapNotNull { key ->
