@@ -80,40 +80,13 @@ class LabsWorld : JavaPlugin() {
 
     fun npcSpawnPointCount(): Int = npcSpawnPointManager.getSpawnPointLocations().size
 
-    fun pickNpcSpawnPointSpawnLocation(): Location? {
-        // Ensure stored list is accurate.
-        npcSpawnPointManager.reconcileStoredSpawnPoints()
-
-        val points = npcSpawnPointManager.getSpawnPointLocations()
-        val chosen = points
-            .sortedWith(
-                compareBy<Location>({ it.world?.uid?.toString() ?: "" }, { it.blockX }, { it.blockY }, { it.blockZ }),
-            )
-            .firstOrNull() ?: return null
-
-        // Spawn on top of the marker block.
-        return chosen.clone().add(0.5, 1.0, 0.5)
-    }
+    fun pickNpcSpawnPointSpawnLocation(): Location? = npcSpawnPointManager.pickSpawnLocation()
 
     fun ensureNpcAtSpawnPoint(
         userId: String,
         userName: String,
         spawnLocation: Location,
-    ): Result<String> {
-        // Ensure chunk is available before spawning/teleporting.
-        val world = spawnLocation.world ?: return Result.failure(IllegalStateException("Spawn location has no world"))
-        val chunk = world.getChunkAt(spawnLocation)
-        if (!chunk.isLoaded) {
-            chunk.load(true)
-        }
-
-        val result = npcLinkManager.ensureNpcAt(userId, userName, spawnLocation)
-        return if (result.spawned) {
-            Result.success("Spawned your NPC at the spawn point.")
-        } else {
-            Result.success("Teleported your NPC to the spawn point.")
-        }
-    }
+    ): Result<String> = npcLinkManager.ensureNpcAtWithChunkLoad(userId, userName, spawnLocation)
 
     fun startAggroAllNpcs(
         target: Player,

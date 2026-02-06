@@ -142,4 +142,23 @@ class VillagerNpcSpawnPointManager(
         cfg.set("spawn_points", spawnPoints.map { it.toString() }.sorted())
         cfg.save(storageFile)
     }
+
+    /**
+     * Picks the first available spawn point location (sorted deterministically).
+     * Reconciles stored spawn points before picking.
+     * Returns a location on TOP of the marker block (offset +0.5x, +1y, +0.5z).
+     */
+    fun pickSpawnLocation(): Location? {
+        reconcileStoredSpawnPoints()
+
+        val points = getSpawnPointLocations()
+        val chosen = points
+            .sortedWith(
+                compareBy<Location>({ it.world?.uid?.toString() ?: "" }, { it.blockX }, { it.blockY }, { it.blockZ }),
+            )
+            .firstOrNull() ?: return null
+
+        // Spawn on top of the marker block.
+        return chosen.clone().add(0.5, 1.0, 0.5)
+    }
 }

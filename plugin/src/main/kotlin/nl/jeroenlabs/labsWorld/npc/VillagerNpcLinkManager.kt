@@ -228,4 +228,29 @@ class VillagerNpcLinkManager(
     private fun save(cfg: YamlConfiguration) {
         cfg.save(storageFile)
     }
+
+    /**
+     * Ensures the given linked user has an NPC at the specified spawn location.
+     * Loads the chunk if not already loaded before spawning/teleporting.
+     */
+    fun ensureNpcAtWithChunkLoad(
+        userId: String,
+        userName: String,
+        spawnLocation: Location,
+    ): Result<String> {
+        val world = spawnLocation.world
+            ?: return Result.failure(IllegalStateException("Spawn location has no world"))
+
+        val chunk = world.getChunkAt(spawnLocation)
+        if (!chunk.isLoaded) {
+            chunk.load(true)
+        }
+
+        val result = ensureNpcAt(userId, userName, spawnLocation)
+        return if (result.spawned) {
+            Result.success("Spawned your NPC at the spawn point.")
+        } else {
+            Result.success("Teleported your NPC to the spawn point.")
+        }
+    }
 }
