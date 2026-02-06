@@ -16,9 +16,6 @@ class VillagerNpcLinkManager(
     private val storageFile = File(plugin.dataFolder, "twitch-npcs.yml")
 
     fun init() {
-        if (!plugin.dataFolder.exists()) {
-            plugin.dataFolder.mkdirs()
-        }
         if (!storageFile.exists()) {
             save(YamlConfiguration())
         }

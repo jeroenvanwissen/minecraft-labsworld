@@ -45,11 +45,6 @@ class TwitchConfigManager(
             ?.takeIf { it.isNotEmpty() }
 
     fun init() {
-        // Make sure the data folder exists
-        if (!plugin.dataFolder.exists()) {
-            plugin.dataFolder.mkdirs()
-        }
-
         // Load configuration
         configFile = File(plugin.dataFolder, "twitch.config.yml")
         if (!configFile.exists()) {

@@ -47,9 +47,6 @@ class VillagerNpcSpawnPointManager(
     }
 
     fun init() {
-        if (!plugin.dataFolder.exists()) {
-            plugin.dataFolder.mkdirs()
-        }
         load()
     }
 
