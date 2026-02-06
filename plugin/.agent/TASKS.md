@@ -367,7 +367,7 @@ grep -r "linkedUserIdKey" src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNp
 | Field            | Value                      |
 | ---------------- | -------------------------- |
 | **ID**           | `B2`                       |
-| **Status**       | `[ ]`                      |
+| **Status**       | `[x]`                      |
 | **Dependencies** | `B1`                       |
 | **Branch**       | `refactor/b2-duel-service` |
 
