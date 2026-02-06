@@ -35,26 +35,27 @@ class VillagerNpcAggroService(
         val periodTicks = 10L // re-issue pathing every 0.5s
         val speed = 1.2
 
-        val task = plugin.server.scheduler.runTaskTimer(
-            plugin,
-            Runnable {
-                if (!target.isOnline) {
-                    stop()
-                    return@Runnable
-                }
+        val task =
+            plugin.server.scheduler.runTaskTimer(
+                plugin,
+                Runnable {
+                    if (!target.isOnline) {
+                        stop()
+                        return@Runnable
+                    }
 
-                for (villager in npcs) {
-                    if (!villager.isValid) continue
-                    villager.setAI(true)
-                    villager.removeWhenFarAway = false
+                    for (villager in npcs) {
+                        if (!villager.isValid) continue
+                        villager.setAI(true)
+                        villager.removeWhenFarAway = false
 
-                    // Villagers are not hostile; this just makes them chase/surround the player.
-                    villager.pathfinder.moveTo(target.location, speed)
-                }
-            },
-            0L,
-            periodTicks,
-        )
+                        // Villagers are not hostile; this just makes them chase/surround the player.
+                        villager.pathfinder.moveTo(target.location, speed)
+                    }
+                },
+                0L,
+                periodTicks,
+            )
 
         runningTask = task
 
@@ -103,37 +104,38 @@ class VillagerNpcAggroService(
         val attackRangeSq = attackRange * attackRange
         val damageAmount = damageHeartsPerHit * 2.0
 
-        val task = plugin.server.scheduler.runTaskTimer(
-            plugin,
-            Runnable {
-                if (!target.isOnline) {
-                    stop(npcs)
-                    return@Runnable
-                }
+        val task =
+            plugin.server.scheduler.runTaskTimer(
+                plugin,
+                Runnable {
+                    if (!target.isOnline) {
+                        stop(npcs)
+                        return@Runnable
+                    }
 
-                val now = System.currentTimeMillis()
-                for (villager in npcs) {
-                    if (!villager.isValid) continue
-                    if (villager.world.uid != target.world.uid) continue
+                    val now = System.currentTimeMillis()
+                    for (villager in npcs) {
+                        if (!villager.isValid) continue
+                        if (villager.world.uid != target.world.uid) continue
 
-                    villager.setAI(true)
-                    villager.removeWhenFarAway = false
-                    villager.pathfinder.moveTo(target.location, speed)
+                        villager.setAI(true)
+                        villager.removeWhenFarAway = false
+                        villager.pathfinder.moveTo(target.location, speed)
 
-                    val distSq = villager.location.distanceSquared(target.location)
-                    if (distSq <= attackRangeSq) {
-                        val last = lastHitAtMsByNpcId[villager.uniqueId]
-                        if (last == null || now - last >= hitCooldownMs) {
-                            // Attribute the damage to the villager so it feels like the NPC is attacking.
-                            target.damage(damageAmount, villager)
-                            lastHitAtMsByNpcId[villager.uniqueId] = now
+                        val distSq = villager.location.distanceSquared(target.location)
+                        if (distSq <= attackRangeSq) {
+                            val last = lastHitAtMsByNpcId[villager.uniqueId]
+                            if (last == null || now - last >= hitCooldownMs) {
+                                // Attribute the damage to the villager so it feels like the NPC is attacking.
+                                target.damage(damageAmount, villager)
+                                lastHitAtMsByNpcId[villager.uniqueId] = now
+                            }
                         }
                     }
-                }
-            },
-            0L,
-            periodTicks,
-        )
+                },
+                0L,
+                periodTicks,
+            )
 
         runningTask = task
 
