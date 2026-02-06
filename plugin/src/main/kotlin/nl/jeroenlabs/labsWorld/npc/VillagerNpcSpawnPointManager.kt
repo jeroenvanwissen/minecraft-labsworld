@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.UUID
 
-class NpcSpawnPointManager(
+class VillagerNpcSpawnPointManager(
     private val plugin: JavaPlugin,
 ) {
     private val itemKey = NamespacedKey(plugin, "npc_spawn_point_item")

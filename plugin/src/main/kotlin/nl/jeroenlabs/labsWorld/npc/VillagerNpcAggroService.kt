@@ -8,7 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
 import java.util.UUID
 
-class NpcAggroService(
+class VillagerNpcAggroService(
     private val plugin: JavaPlugin,
 ) {
     // Keep the legacy key for existing data compatibility.
