@@ -87,7 +87,10 @@ class VillagerNpcLinkManager(
         return EnsureResult(spawned = true, npcUuid = npc.uniqueId, npcName = npc.customName)
     }
 
-    private fun applyNpcRuntimeSettings(villager: Villager, profession: Villager.Profession? = null) {
+    private fun applyNpcRuntimeSettings(
+        villager: Villager,
+        profession: Villager.Profession? = null,
+    ) {
         // Ensure NPCs can wander even if they were created when AI was disabled.
         villager.setAI(true)
 
@@ -99,17 +102,17 @@ class VillagerNpcLinkManager(
         villager.removeWhenFarAway = false
     }
 
-    private fun isLinkedToUser(villager: Villager, userId: String): Boolean {
-        return VillagerNpcKeys.isLinkedToUser(villager, userId, plugin)
-    }
+    private fun isLinkedToUser(
+        villager: Villager,
+        userId: String,
+    ): Boolean = VillagerNpcKeys.isLinkedToUser(villager, userId, plugin)
 
-    fun findLoadedNpcByUserId(userId: String): Villager? {
-        return plugin.server.worlds
+    fun findLoadedNpcByUserId(userId: String): Villager? =
+        plugin.server.worlds
             .asSequence()
             .flatMap { it.livingEntities.asSequence() }
             .filterIsInstance<Villager>()
             .firstOrNull { isLinkedToUser(it, userId) }
-    }
 
     fun getStoredUserName(userId: String): String? {
         val cfg = load()
@@ -147,7 +150,10 @@ class VillagerNpcLinkManager(
         return null
     }
 
-    private fun readStoredLocation(cfg: YamlConfiguration, userId: String): Location? {
+    private fun readStoredLocation(
+        cfg: YamlConfiguration,
+        userId: String,
+    ): Location? {
         val path = resolveUserBasePath(cfg, userId) ?: "users.$userId"
         val worldIdStr = cfg.getString("$path.world_id") ?: return null
         val worldId = runCatching { UUID.fromString(worldIdStr) }.getOrNull() ?: return null
@@ -160,7 +166,10 @@ class VillagerNpcLinkManager(
         return Location(world, x, y, z)
     }
 
-    private fun resolveUserBasePath(cfg: YamlConfiguration, userId: String): String? {
+    private fun resolveUserBasePath(
+        cfg: YamlConfiguration,
+        userId: String,
+    ): String? {
         val usersSection = cfg.getConfigurationSection("users")
         if (usersSection != null) {
             return if (usersSection.contains(userId)) "users.$userId" else null
@@ -168,7 +177,10 @@ class VillagerNpcLinkManager(
         return if (cfg.contains(userId)) userId else null
     }
 
-    private fun tryLoadAndFindNpcByUuid(uuid: UUID, approxLocation: Location): Entity? {
+    private fun tryLoadAndFindNpcByUuid(
+        uuid: UUID,
+        approxLocation: Location,
+    ): Entity? {
         val world = approxLocation.world ?: return null
         val chunk = world.getChunkAt(approxLocation)
         if (!chunk.isLoaded) {

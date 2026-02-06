@@ -40,7 +40,8 @@ class TwitchConfigManager(
     )
 
     private fun env(name: String): String? =
-        System.getenv(name)
+        System
+            .getenv(name)
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
 
@@ -66,7 +67,7 @@ class TwitchConfigManager(
     }
 
     fun reloadConfig() {
-        plugin.logger.info("Reloading twitch config ${configFile}")
+        plugin.logger.info("Reloading twitch config $configFile")
         configYaml = YamlConfiguration.loadConfiguration(configFile)
         reloadVersion += 1
         plugin.logger.info("Twitch configuration reloaded")
@@ -183,7 +184,6 @@ class TwitchConfigManager(
             ActionConfig(type = type, params = params)
         }
     }
-
 
     fun getTwitchEnvPresence(): Map<String, Boolean> =
         linkedMapOf(
