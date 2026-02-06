@@ -3,6 +3,9 @@ package nl.jeroenlabs.labsWorld.twitch.redeems.handlers
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandler
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandlerContext
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemInvocation
+import nl.jeroenlabs.labsWorld.util.anyToDouble
+import nl.jeroenlabs.labsWorld.util.anyToInt
+import nl.jeroenlabs.labsWorld.util.anyToString
 
 object NpcAttackHandler : RedeemHandler {
     override val key = "npc.attack"

@@ -1,5 +1,9 @@
 package nl.jeroenlabs.labsWorld.twitch
 
+import nl.jeroenlabs.labsWorld.twitch.actions.ActionConfig
+import nl.jeroenlabs.labsWorld.twitch.commands.Permission
+import nl.jeroenlabs.labsWorld.util.anyToBool
+import nl.jeroenlabs.labsWorld.util.anyToString
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
@@ -9,6 +13,7 @@ class TwitchConfigManager(
 ) {
     private lateinit var configFile: File
     private lateinit var configYaml: YamlConfiguration
+    private var reloadVersion: Long = 0
 
     data class TwitchConfig(
         val clientId: String?,
@@ -21,10 +26,17 @@ class TwitchConfigManager(
     data class RedeemBindingConfig(
         val rewardId: String?,
         val rewardTitle: String?,
-        val handler: String,
-        val cooldownMs: Long?,
+        val handler: String?,
         val runOnMainThread: Boolean?,
         val params: Map<String, Any?>,
+        val actions: List<ActionConfig>,
+    )
+
+    data class CommandBindingConfig(
+        val name: String,
+        val permission: Permission,
+        val runOnMainThread: Boolean?,
+        val actions: List<ActionConfig>,
     )
 
     private fun env(name: String): String? =
@@ -44,6 +56,7 @@ class TwitchConfigManager(
             plugin.saveResource("twitch.config.yml", false)
         }
         configYaml = YamlConfiguration.loadConfiguration(configFile)
+        reloadVersion += 1
 
         if (
             configYaml.contains("client_id") ||
@@ -60,8 +73,11 @@ class TwitchConfigManager(
     fun reloadConfig() {
         plugin.logger.info("Reloading twitch config ${configFile}")
         configYaml = YamlConfiguration.loadConfiguration(configFile)
+        reloadVersion += 1
         plugin.logger.info("Twitch configuration reloaded")
     }
+
+    fun getReloadVersion(): Long = reloadVersion
 
     fun getConfig(): TwitchConfig {
         val clientId = env("TWITCH_CLIENT_ID")
@@ -86,29 +102,6 @@ class TwitchConfigManager(
         configYaml.save(configFile)
     }
 
-    fun getDefaultCommandCooldownMs(): Long? {
-        val section = configYaml.getConfigurationSection("commands") ?: return null
-        return if (section.contains("default_cooldown_ms")) {
-            section.getLong("default_cooldown_ms")
-        } else {
-            null
-        }
-    }
-
-    fun getCommandCooldownMs(commandName: String): Long? {
-        val section = configYaml.getConfigurationSection("commands") ?: return null
-        val cooldowns = section.getConfigurationSection("cooldown_ms") ?: return null
-        if (cooldowns.contains(commandName)) return cooldowns.getLong(commandName)
-        val lowered = commandName.lowercase()
-        return if (cooldowns.contains(lowered)) cooldowns.getLong(lowered) else null
-    }
-
-    fun getCommandCooldownOverridesMs(): Map<String, Long> {
-        val section = configYaml.getConfigurationSection("commands") ?: return emptyMap()
-        val cooldowns = section.getConfigurationSection("cooldown_ms") ?: return emptyMap()
-        return cooldowns.getKeys(false).associateWith { key -> cooldowns.getLong(key) }
-    }
-
     fun isRedeemsEnabled(): Boolean = configYaml.getBoolean("redeems.enabled", false)
 
     fun shouldLogUnmatchedRedeems(): Boolean = configYaml.getBoolean("redeems.log_unmatched", true)
@@ -118,41 +111,12 @@ class TwitchConfigManager(
         val list = section.getMapList("bindings")
         if (list.isEmpty()) return emptyList()
 
-        fun anyToString(value: Any?): String? =
-            when (value) {
-                null -> null
-                is String -> value.trim().takeIf { it.isNotEmpty() }
-                else -> value.toString().trim().takeIf { it.isNotEmpty() }
-            }
-
-        fun anyToLong(value: Any?): Long? =
-            when (value) {
-                is Number -> value.toLong()
-                is String -> value.trim().toLongOrNull()
-                else -> null
-            }
-
-        fun anyToBool(value: Any?): Boolean? =
-            when (value) {
-                is Boolean -> value
-                is String -> value.trim().lowercase().let { s ->
-                    when (s) {
-                        "true", "yes", "1" -> true
-                        "false", "no", "0" -> false
-                        else -> null
-                    }
-                }
-                is Number -> value.toInt() != 0
-                else -> null
-            }
-
         return list.mapNotNull { raw ->
             val map = raw as? Map<*, *> ?: return@mapNotNull null
             val rewardId = anyToString(map["reward_id"])
             val rewardTitle = anyToString(map["reward_title"])
-            val handler = anyToString(map["handler"]) ?: return@mapNotNull null
+            val handler = anyToString(map["handler"])
 
-            val cooldownMs = anyToLong(map["cooldown_ms"])?.coerceAtLeast(0)
             val runOnMainThread = anyToBool(map["run_on_main_thread"])
 
             val paramsRaw = map["params"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
@@ -161,19 +125,70 @@ class TwitchConfigManager(
                     .mapNotNull { (k, v) -> anyToString(k)?.let { it to v } }
                     .toMap()
 
+            val actions = parseActionList(map["actions"])
+
             // Require at least one matcher.
             if (rewardId.isNullOrEmpty() && rewardTitle.isNullOrEmpty()) return@mapNotNull null
+            if (handler.isNullOrEmpty() && actions.isEmpty()) return@mapNotNull null
 
             RedeemBindingConfig(
                 rewardId = rewardId,
                 rewardTitle = rewardTitle,
                 handler = handler,
-                cooldownMs = cooldownMs,
                 runOnMainThread = runOnMainThread,
                 params = params,
+                actions = actions,
             )
         }
     }
+
+    fun getCommandBindings(): List<CommandBindingConfig> {
+        val section = configYaml.getConfigurationSection("commands") ?: return emptyList()
+        val list = section.getMapList("bindings")
+        if (list.isEmpty()) return emptyList()
+
+        return list.mapNotNull { raw ->
+            val map = raw as? Map<*, *> ?: return@mapNotNull null
+            val name = anyToString(map["name"]) ?: return@mapNotNull null
+            val permission = parsePermission(anyToString(map["permission"]))
+            val runOnMainThread = anyToBool(map["run_on_main_thread"])
+            val actions = parseActionList(map["actions"])
+            if (actions.isEmpty()) return@mapNotNull null
+
+            CommandBindingConfig(
+                name = name,
+                permission = permission,
+                runOnMainThread = runOnMainThread,
+                actions = actions,
+            )
+        }
+    }
+
+    private fun parsePermission(value: String?): Permission {
+        val normalized = value?.trim()?.lowercase() ?: return Permission.EVERYONE
+        return when (normalized) {
+            "broadcaster" -> Permission.BROADCASTER
+            "moderator", "mod" -> Permission.MODERATOR
+            "vip" -> Permission.VIP
+            "subscriber", "sub" -> Permission.SUBSCRIBER
+            else -> Permission.EVERYONE
+        }
+    }
+
+    private fun parseActionList(raw: Any?): List<ActionConfig> {
+        val list = raw as? List<*> ?: return emptyList()
+        return list.mapNotNull { entry ->
+            val map = entry as? Map<*, *> ?: return@mapNotNull null
+            val type = anyToString(map["type"]) ?: return@mapNotNull null
+            val paramsRaw = map["params"] as? Map<*, *> ?: emptyMap<Any?, Any?>()
+            val params =
+                paramsRaw.entries
+                    .mapNotNull { (k, v) -> anyToString(k)?.let { it to v } }
+                    .toMap()
+            ActionConfig(type = type, params = params)
+        }
+    }
+
 
     fun getTwitchEnvPresence(): Map<String, Boolean> =
         linkedMapOf(

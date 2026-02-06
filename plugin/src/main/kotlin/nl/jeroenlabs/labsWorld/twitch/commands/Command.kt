@@ -39,13 +39,6 @@ interface Command<T : Any> {
     val runOnMainThread: Boolean
         get() = false
 
-    /**
-     * Cooldown applied per user per command in milliseconds.
-     * Set to 0 to disable cooldown for this command.
-     */
-    val cooldownMs: Long
-        get() = 2_000L
-
     fun init()
 
     fun handle(invocation: CommandInvocation)

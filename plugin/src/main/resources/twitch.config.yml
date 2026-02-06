@@ -7,18 +7,34 @@ channel_name: ""
 # - TWITCH_ACCESS_TOKEN    (optional fallback; not recommended long-term)
 # - TWITCH_CHANNEL_NAME    (optional; overrides channel_name above)
 
-# Optional: command cooldowns (milliseconds)
-# - default_cooldown_ms applies to all commands unless overridden
-# - cooldown_ms allows per-command overrides by command name
 commands:
-  # Cooldown applied to all commands unless overridden below.
-  # Set to 0 to disable global cooldown.
-  default_cooldown_ms: 2000
+  # Optional: define chat commands via config (no server restart; reload config).
+  # Each binding creates a new !<name> command that runs one or more actions.
+  bindings:
+    # Example: spawn fireworks near a random player
+    # - name: "fireworks"
+    #   permission: "everyone"
+    #   run_on_main_thread: true
+    #   actions:
+    #     - type: "player.fireworks"
+    #       params:
+    #         count: 3
+    #         power: 1
+    #         allow_random: true
 
-  # Per-command cooldown overrides by command name.
-  # Set to 0 to disable cooldown for a specific command.
-  cooldown_ms:
-    lw: 2000
+    # Example: heal a specific player and drop items
+    # - name: "healme"
+    #   permission: "subscriber"
+    #   actions:
+    #     - type: "player.heal"
+    #       params:
+    #         target_player: "SomePlayer"
+    #         hearts: 4
+    #     - type: "player.drop_items"
+    #       params:
+    #         items:
+    #           - type: "GOLDEN_APPLE"
+    #             amount: 2
 
 # Optional: Channel Point Redeems -> plugin handlers
 #
@@ -62,3 +78,45 @@ redeems:
     #   handler: "chat.say"
     #   params:
     #     message: "Thanks @{user}! You redeemed {reward}."
+
+    # Example: run multiple in-game actions on redeem
+    # - reward_title: "FIREWORKS + RAIN"
+    #   run_on_main_thread: true
+    #   actions:
+    #     - type: "player.fireworks"
+    #       params:
+    #         count: 4
+    #         power: 1
+    #         allow_random: true
+    #     - type: "world.weather"
+    #       params:
+    #         state: "rain"
+    #         duration_seconds: 45
+
+    # Example: loot box (spawns a chest near the target player with random items)
+    # - reward_title: "LOOT BOX"
+    #   run_on_main_thread: true
+    #   actions:
+    #     - type: "world.loot_chest"
+    #       params:
+    #         # Optional: who to spawn near; defaults to a random/only online player
+    #         # target_player: "SomeMinecraftPlayer"
+    #         radius: 6
+    #         tries: 24
+    #         rolls: 4
+    #         name: "Loot Box"
+    #         announce: true
+    #         # Debug: force deterministic contents
+    #         # debug_force_bread_amount: 5
+    #         loot:
+    #           - type: "DIAMOND"
+    #             min_amount: 1
+    #             max_amount: 2
+    #             weight: 0.3
+    #           - type: "GOLD_INGOT"
+    #             min_amount: 2
+    #             max_amount: 8
+    #             weight: 2
+    #           - type: "COOKED_BEEF"
+    #             amount: 8
+    #             weight: 5

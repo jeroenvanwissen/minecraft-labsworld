@@ -122,7 +122,8 @@ class NpcLinkManager(
 
     fun getStoredUserName(userId: String): String? {
         val cfg = load()
-        return cfg.getString("users.$userId.user_name")
+        val base = resolveUserBasePath(cfg, userId) ?: "users.$userId"
+        return cfg.getString("$base.user_name")
     }
 
     /**
@@ -131,11 +132,22 @@ class NpcLinkManager(
      */
     fun resolveUserIdByUserName(userName: String): String? {
         val cfg = load()
-        val users = cfg.getConfigurationSection("users") ?: return null
-
         val normalized = userName.trim()
-        for (id in users.getKeys(false)) {
-            val stored = cfg.getString("users.$id.user_name") ?: continue
+
+        val usersSection = cfg.getConfigurationSection("users")
+        if (usersSection != null) {
+            for (id in usersSection.getKeys(false)) {
+                val stored = cfg.getString("users.$id.user_name") ?: continue
+                if (stored.equals(normalized, ignoreCase = true)) {
+                    return id
+                }
+            }
+            return null
+        }
+
+        for (id in cfg.getKeys(false)) {
+            if (id == "users") continue
+            val stored = cfg.getString("$id.user_name") ?: continue
             if (stored.equals(normalized, ignoreCase = true)) {
                 return id
             }
@@ -145,7 +157,7 @@ class NpcLinkManager(
     }
 
     private fun readStoredLocation(cfg: YamlConfiguration, userId: String): Location? {
-        val path = "users.$userId"
+        val path = resolveUserBasePath(cfg, userId) ?: "users.$userId"
         val worldIdStr = cfg.getString("$path.world_id") ?: return null
         val worldId = runCatching { UUID.fromString(worldIdStr) }.getOrNull() ?: return null
         val world = Bukkit.getWorld(worldId) ?: return null
@@ -155,6 +167,14 @@ class NpcLinkManager(
         val z = cfg.getDouble("$path.z")
 
         return Location(world, x, y, z)
+    }
+
+    private fun resolveUserBasePath(cfg: YamlConfiguration, userId: String): String? {
+        val usersSection = cfg.getConfigurationSection("users")
+        if (usersSection != null) {
+            return if (usersSection.contains(userId)) "users.$userId" else null
+        }
+        return if (cfg.contains(userId)) userId else null
     }
 
     private fun tryLoadAndFindNpcByUuid(uuid: UUID, approxLocation: Location): Entity? {

@@ -53,15 +53,7 @@ class LabsWorldCommand(
                 sender.sendMessage("- channel: ${config.channelName ?: "(missing)"}")
                 sender.sendMessage("- has_required_config: ${config.hasRequiredConfig}")
                 sender.sendMessage("- env: ${config.envPresence.entries.joinToString(", ") { (k, v) -> "$k=${if (v) "set" else "missing"}" }}")
-                sender.sendMessage("- cooldown_default_ms: ${config.defaultCooldownMs ?: "(not set)"}")
                 sender.sendMessage("- npc_spawn_points: ${plugin.npcSpawnPointCount()}")
-                if (config.cooldownOverridesMs.isEmpty()) {
-                    sender.sendMessage("- cooldown_overrides_ms: (none)")
-                } else {
-                    sender.sendMessage(
-                        "- cooldown_overrides_ms: ${config.cooldownOverridesMs.entries.joinToString(", ") { (k, v) -> "$k=$v" }}",
-                    )
-                }
                 true
             }
 

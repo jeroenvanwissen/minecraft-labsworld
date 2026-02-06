@@ -177,6 +177,8 @@ class LabsWorld : JavaPlugin() {
 
     fun resolveLinkedUserIdByUserName(userName: String): String? = npcLinkManager.resolveUserIdByUserName(userName)
 
+    fun getNpcByUserId(userId: String): Villager? = npcLinkManager.findLoadedNpcByUserId(userId)
+
     fun getStoredLinkedUserName(userId: String): String? = npcLinkManager.getStoredUserName(userId)
 
     /**
@@ -348,8 +350,6 @@ class LabsWorld : JavaPlugin() {
         val channelName: String?,
         val hasRequiredConfig: Boolean,
         val envPresence: Map<String, Boolean>,
-        val defaultCooldownMs: Long?,
-        val cooldownOverridesMs: Map<String, Long>,
     )
 
     fun twitchStatusSnapshot(): TwitchStatusSnapshot {
@@ -359,8 +359,6 @@ class LabsWorld : JavaPlugin() {
             channelName = cfg.channelName,
             hasRequiredConfig = twitchConfigManager.hasRequiredConfig(),
             envPresence = twitchConfigManager.getTwitchEnvPresence(),
-            defaultCooldownMs = twitchConfigManager.getDefaultCommandCooldownMs(),
-            cooldownOverridesMs = twitchConfigManager.getCommandCooldownOverridesMs(),
         )
     }
 }

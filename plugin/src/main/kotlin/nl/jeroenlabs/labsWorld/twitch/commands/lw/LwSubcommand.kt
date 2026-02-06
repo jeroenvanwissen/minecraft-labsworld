@@ -17,7 +17,11 @@ fun CommandContext.labsWorld(): LabsWorld? = plugin as? LabsWorld
 
 fun LabsWorld.pickTargetPlayer(preferred: String?, allowRandom: Boolean): Player? {
     val online = server.onlinePlayers.toList()
-    if (!preferred.isNullOrBlank()) return server.getPlayerExact(preferred)
+    if (!preferred.isNullOrBlank()) {
+        val exact = server.getPlayerExact(preferred)
+        if (exact != null) return exact
+        if (!allowRandom) return null
+    }
     if (online.isEmpty()) return null
     if (online.size == 1) return online.first()
     if (!allowRandom) return null
