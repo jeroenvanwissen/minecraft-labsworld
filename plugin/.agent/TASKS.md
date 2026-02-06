@@ -65,7 +65,7 @@ The agent MUST stop and ask the user when:
 | Field            | Value                    |
 | ---------------- | ------------------------ |
 | **ID**           | `A0`                     |
-| **Status**       | `[ ]`                    |
+| **Status**       | `[x]`                    |
 | **Dependencies** | None                     |
 | **Branch**       | `refactor/a0-npc-rename` |
 

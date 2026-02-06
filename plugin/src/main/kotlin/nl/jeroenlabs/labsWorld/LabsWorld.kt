@@ -1,10 +1,10 @@
 package nl.jeroenlabs.labsWorld
 
-import nl.jeroenlabs.labsWorld.npc.NpcAggroService
-import nl.jeroenlabs.labsWorld.npc.NpcLinkManager
-import nl.jeroenlabs.labsWorld.npc.NpcManager
-import nl.jeroenlabs.labsWorld.npc.NpcSpawnPointListener
-import nl.jeroenlabs.labsWorld.npc.NpcSpawnPointManager
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcAggroService
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcLinkManager
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcManager
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcSpawnPointListener
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcSpawnPointManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchClientManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchEventHandler
@@ -21,10 +21,10 @@ class LabsWorld : JavaPlugin() {
     private lateinit var twitchConfigManager: TwitchConfigManager
     private lateinit var twitchClientManager: TwitchClientManager
     private lateinit var twitchEventHandler: TwitchEventHandler
-    private lateinit var npcManager: NpcManager
-    private lateinit var npcSpawnPointManager: NpcSpawnPointManager
-    private lateinit var npcLinkManager: NpcLinkManager
-    private lateinit var npcAggroService: NpcAggroService
+    private lateinit var npcManager: VillagerNpcManager
+    private lateinit var npcSpawnPointManager: VillagerNpcSpawnPointManager
+    private lateinit var npcLinkManager: VillagerNpcLinkManager
+    private lateinit var npcAggroService: VillagerNpcAggroService
 
     private var twitchNpcDuelTask: BukkitTask? = null
 
@@ -60,16 +60,16 @@ class LabsWorld : JavaPlugin() {
             logger.warning("Twitch is not connected; Twitch chat commands will be unavailable until config is fixed.")
         }
 
-        npcManager = NpcManager(this)
+        npcManager = VillagerNpcManager(this)
 
-        npcLinkManager = NpcLinkManager(this, npcManager)
+        npcLinkManager = VillagerNpcLinkManager(this, npcManager)
         npcLinkManager.init()
 
-        npcAggroService = NpcAggroService(this)
+        npcAggroService = VillagerNpcAggroService(this)
 
-        npcSpawnPointManager = NpcSpawnPointManager(this)
+        npcSpawnPointManager = VillagerNpcSpawnPointManager(this)
         npcSpawnPointManager.init()
-        server.pluginManager.registerEvents(NpcSpawnPointListener(npcSpawnPointManager), this)
+        server.pluginManager.registerEvents(VillagerNpcSpawnPointListener(npcSpawnPointManager), this)
         server.scheduler.runTask(this, Runnable { npcSpawnPointManager.reconcileStoredSpawnPoints() })
 
         registerCommand("labsworld", LabsWorldPaperCommand(this))

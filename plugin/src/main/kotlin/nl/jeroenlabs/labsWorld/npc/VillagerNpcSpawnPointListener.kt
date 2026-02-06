@@ -7,8 +7,8 @@ import org.bukkit.event.block.BlockExplodeEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityExplodeEvent
 
-class NpcSpawnPointListener(
-    private val manager: NpcSpawnPointManager,
+class VillagerNpcSpawnPointListener(
+    private val manager: VillagerNpcSpawnPointManager,
 ) : Listener {
     @EventHandler
     fun onPlace(event: BlockPlaceEvent) {

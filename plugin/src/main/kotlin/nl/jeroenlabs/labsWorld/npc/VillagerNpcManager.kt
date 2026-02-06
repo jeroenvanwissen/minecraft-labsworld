@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.UUID
 
-class NpcManager(private val plugin: JavaPlugin) {
+class VillagerNpcManager(private val plugin: JavaPlugin) {
     private val npcTagKey = NamespacedKey(plugin, "custom_npc")
     private val npcOwnerKey = NamespacedKey(plugin, "npc_owner")
     private val twitchUserIdKey = NamespacedKey(plugin, "npc_twitch_user_id")

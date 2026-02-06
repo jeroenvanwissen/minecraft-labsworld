@@ -11,9 +11,9 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.UUID
 
-class NpcLinkManager(
+class VillagerNpcLinkManager(
     private val plugin: JavaPlugin,
-    private val npcManager: NpcManager,
+    private val npcManager: VillagerNpcManager,
 ) {
     private val storageFile = File(plugin.dataFolder, "twitch-npcs.yml")
 
