@@ -266,6 +266,51 @@ grep -r "dataFolder.exists" src/main/kotlin --include="*.kt" | wc -l  # Should b
 
 ---
 
+### Task A4: Remove UUID-owned NPC Code
+
+| Field            | Value                          |
+| ---------------- | ------------------------------ |
+| **ID**           | `A4`                           |
+| **Status**       | `[ ]`                          |
+| **Dependencies** | `A2`                           |
+| **Branch**       | `refactor/a4-remove-owner-npc` |
+
+**Goal:**
+Remove `createCustomNpc()` and related owner-based NPC code. All NPCs will be Twitch-user-linked only.
+
+**Scope:**
+
+```
+src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
+├── VillagerNpcManager.kt   # MODIFY (remove createCustomNpc, getOwnerOfNpc)
+└── VillagerNpcKeys.kt      # MODIFY (remove owner key)
+```
+
+**Implementation:**
+
+1. Remove `createCustomNpc()` method from `VillagerNpcManager`
+2. Remove `getOwnerOfNpc()` method from `VillagerNpcManager`
+3. Remove `owner()` function from `VillagerNpcKeys`
+4. Search codebase for any callers and remove/update them
+
+**Acceptance Criteria:**
+
+- [ ] No `createCustomNpc` method exists
+- [ ] No `getOwnerOfNpc` method exists
+- [ ] No `npc_owner` key definition exists
+- [ ] Grep for `npc_owner` returns 0 results
+- [ ] Build passes
+
+**Commands:**
+
+```bash
+./gradlew compileKotlin
+./gradlew shadowJar
+grep -r "createCustomNpc\|getOwnerOfNpc\|npc_owner" src/main/kotlin --include="*.kt" | wc -l  # Should be 0
+```
+
+---
+
 ## Phase B — NPC Layer
 
 ### Task B1: Move findAllLinkedVillagerNpcs to VillagerNpcLinkManager

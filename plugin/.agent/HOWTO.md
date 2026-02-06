@@ -314,6 +314,7 @@ Run tasks respecting dependencies:
 - A0 first (rename Npc* → VillagerNpc*)
 - A1, A3 (both depend on A0)
 - A2 (depends on A1)
+- A4 (depends on A2, remove owner NPC code)
 
 **Phase B (NPC Layer):**
 

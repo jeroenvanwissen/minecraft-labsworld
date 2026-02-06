@@ -51,11 +51,12 @@ run_with_wait() {
 
 case $PHASE in
     A)
-        echo "Phase A - Foundation (A0 first, then A1/A3, then A2)"
+        echo "Phase A - Foundation (A0 → A1/A3 → A2 → A4)"
         run_with_wait "A0"  # Rename Npc* to VillagerNpc*
         run_with_wait "A1"  # Depends on A0
         run_with_wait "A3"  # Depends on A0
         run_with_wait "A2"  # Depends on A1
+        run_with_wait "A4"  # Depends on A2, remove owner NPC code
         ;;
     B)
         echo "Phase B - NPC Layer (B1 depends on A1)"
@@ -99,6 +100,7 @@ case $PHASE in
         run_with_wait "A1"
         run_with_wait "A3"
         run_with_wait "A2"
+        run_with_wait "A4"
 
         # Phase B (after A1)
         run_with_wait "B1"
