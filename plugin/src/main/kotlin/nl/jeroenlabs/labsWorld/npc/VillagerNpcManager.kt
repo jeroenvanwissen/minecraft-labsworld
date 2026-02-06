@@ -2,7 +2,6 @@ package nl.jeroenlabs.labsWorld.npc
 
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Location
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Villager
 import org.bukkit.persistence.PersistentDataType
@@ -10,9 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.util.UUID
 
 class VillagerNpcManager(private val plugin: JavaPlugin) {
-    private val npcTagKey = NamespacedKey(plugin, "custom_npc")
-    private val npcOwnerKey = NamespacedKey(plugin, "npc_owner")
-    private val twitchUserIdKey = NamespacedKey(plugin, "npc_twitch_user_id")
 
     fun createCustomNpc(
         location: Location,
@@ -22,8 +18,8 @@ class VillagerNpcManager(private val plugin: JavaPlugin) {
     ): Villager {
         val npc = location.world.spawnEntity(location, EntityType.VILLAGER) as Villager
 
-        npc.persistentDataContainer.set(npcTagKey, PersistentDataType.BYTE, 1)
-        npc.persistentDataContainer.set(npcOwnerKey, PersistentDataType.STRING, owner.toString())
+        npc.persistentDataContainer.set(VillagerNpcKeys.customNpcTag(plugin), PersistentDataType.BYTE, 1)
+        npc.persistentDataContainer.set(VillagerNpcKeys.owner(plugin), PersistentDataType.STRING, owner.toString())
 
         if (!name.isNullOrEmpty()) {
             val uniqueName = generateUniqueName(name)
@@ -52,8 +48,8 @@ class VillagerNpcManager(private val plugin: JavaPlugin) {
     ): Villager {
         val npc = location.world.spawnEntity(location, EntityType.VILLAGER) as Villager
 
-        npc.persistentDataContainer.set(npcTagKey, PersistentDataType.BYTE, 1)
-        npc.persistentDataContainer.set(twitchUserIdKey, PersistentDataType.STRING, userId)
+        npc.persistentDataContainer.set(VillagerNpcKeys.customNpcTag(plugin), PersistentDataType.BYTE, 1)
+        npc.persistentDataContainer.set(VillagerNpcKeys.twitchUserId(plugin), PersistentDataType.STRING, userId)
 
         val uniqueName = generateUniqueName(userName)
         npc.customName = uniqueName
@@ -98,7 +94,7 @@ class VillagerNpcManager(private val plugin: JavaPlugin) {
     }
 
     fun isCustomNpc(entity: Villager): Boolean {
-        return entity.persistentDataContainer.has(npcTagKey, PersistentDataType.BYTE)
+        return VillagerNpcKeys.isCustomNpc(entity, plugin)
     }
 
     fun getAllCustomNpcs(): List<Villager> {
@@ -108,7 +104,7 @@ class VillagerNpcManager(private val plugin: JavaPlugin) {
     }
 
     fun getOwnerOfNpc(villager: Villager): UUID? {
-        val str = villager.persistentDataContainer.get(npcOwnerKey, PersistentDataType.STRING)
+        val str = villager.persistentDataContainer.get(VillagerNpcKeys.owner(plugin), PersistentDataType.STRING)
         return str?.let { runCatching { UUID.fromString(it) }.getOrNull() }
     }
 }

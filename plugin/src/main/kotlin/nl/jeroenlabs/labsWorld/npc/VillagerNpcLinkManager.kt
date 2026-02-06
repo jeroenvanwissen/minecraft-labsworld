@@ -2,11 +2,9 @@ package nl.jeroenlabs.labsWorld.npc
 
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.NamespacedKey
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Villager
-import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.UUID
@@ -16,9 +14,6 @@ class VillagerNpcLinkManager(
     private val npcManager: VillagerNpcManager,
 ) {
     private val storageFile = File(plugin.dataFolder, "twitch-npcs.yml")
-
-    // Keep the legacy key for existing data compatibility.
-    private val linkedUserIdKey = NamespacedKey(plugin, "npc_twitch_user_id")
 
     fun init() {
         if (!plugin.dataFolder.exists()) {
@@ -108,8 +103,7 @@ class VillagerNpcLinkManager(
     }
 
     private fun isLinkedToUser(villager: Villager, userId: String): Boolean {
-        val stored = villager.persistentDataContainer.get(linkedUserIdKey, PersistentDataType.STRING)
-        return stored == userId
+        return VillagerNpcKeys.isLinkedToUser(villager, userId, plugin)
     }
 
     fun findLoadedNpcByUserId(userId: String): Villager? {

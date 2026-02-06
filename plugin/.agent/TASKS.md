@@ -119,7 +119,7 @@ grep -r "import.*\.npc\.Npc[A-Z]" src/main/kotlin --include="*.kt" | wc -l  # Sh
 | Field            | Value                  |
 | ---------------- | ---------------------- |
 | **ID**           | `A1`                   |
-| **Status**       | `[ ]`                  |
+| **Status**       | `[x]`                  |
 | **Dependencies** | `A0`                   |
 | **Branch**       | `refactor/a1-npc-keys` |
 
