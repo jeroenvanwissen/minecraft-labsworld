@@ -66,7 +66,7 @@ class LabsWorld : JavaPlugin() {
         npcLinkManager = VillagerNpcLinkManager(this, npcManager)
         npcLinkManager.init()
 
-        npcAggroService = VillagerNpcAggroService(this)
+        npcAggroService = VillagerNpcAggroService(this, npcLinkManager)
 
         npcSpawnPointManager = VillagerNpcSpawnPointManager(this)
         npcSpawnPointManager.init()

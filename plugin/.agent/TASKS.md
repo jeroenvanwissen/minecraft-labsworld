@@ -318,7 +318,7 @@ grep -r "createCustomNpc\|getOwnerOfNpc\|npc_owner" src/main/kotlin --include="*
 | Field            | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | `B1`                           |
-| **Status**       | `[ ]`                          |
+| **Status**       | `[x]`                          |
 | **Dependencies** | `A1`                           |
 | **Branch**       | `refactor/b1-find-linked-npcs` |
 

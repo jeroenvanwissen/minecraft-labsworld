@@ -114,6 +114,17 @@ class VillagerNpcLinkManager(
             .filterIsInstance<Villager>()
             .firstOrNull { isLinkedToUser(it, userId) }
 
+    /**
+     * Finds all linked NPC villagers across all loaded worlds.
+     */
+    fun findAllLinkedVillagerNpcs(): List<Villager> =
+        plugin.server.worlds
+            .asSequence()
+            .flatMap { it.livingEntities.asSequence() }
+            .filterIsInstance<Villager>()
+            .filter { VillagerNpcKeys.isLinkedVillagerNpc(it, plugin) }
+            .toList()
+
     fun getStoredUserName(userId: String): String? {
         val cfg = load()
         val base = resolveUserBasePath(cfg, userId) ?: "users.$userId"

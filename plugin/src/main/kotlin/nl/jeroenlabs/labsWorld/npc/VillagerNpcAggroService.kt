@@ -8,6 +8,7 @@ import java.util.UUID
 
 class VillagerNpcAggroService(
     private val plugin: JavaPlugin,
+    private val linkManager: VillagerNpcLinkManager,
 ) {
     private var runningTask: BukkitTask? = null
     private val lastHitAtMsByNpcId = HashMap<UUID, Long>()
@@ -22,7 +23,7 @@ class VillagerNpcAggroService(
     ): Result<Int> {
         if (durationSeconds <= 0) return Result.failure(IllegalArgumentException("durationSeconds must be > 0"))
 
-        val npcs = findAllLinkedNpcs()
+        val npcs = linkManager.findAllLinkedVillagerNpcs()
         if (npcs.isEmpty()) return Result.success(0)
 
         // If already running, replace the current run with a new one.
@@ -87,7 +88,7 @@ class VillagerNpcAggroService(
         if (damageHeartsPerHit <= 0.0) return Result.failure(IllegalArgumentException("damageHeartsPerHit must be > 0"))
         if (hitCooldownMs <= 0L) return Result.failure(IllegalArgumentException("hitCooldownMs must be > 0"))
 
-        val npcs = findAllLinkedNpcs()
+        val npcs = linkManager.findAllLinkedVillagerNpcs()
         if (npcs.isEmpty()) return Result.success(0)
 
         // If already running, replace the current run with a new one.
@@ -161,14 +162,5 @@ class VillagerNpcAggroService(
             if (!villager.isValid) continue
             villager.pathfinder.stopPathfinding()
         }
-    }
-
-    private fun findAllLinkedNpcs(): List<Villager> {
-        return plugin.server.worlds
-            .asSequence()
-            .flatMap { it.livingEntities.asSequence() }
-            .filterIsInstance<Villager>()
-            .filter { VillagerNpcKeys.isLinkedVillagerNpc(it, plugin) }
-            .toList()
     }
 }
