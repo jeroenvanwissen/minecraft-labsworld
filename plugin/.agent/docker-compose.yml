@@ -1,0 +1,55 @@
+# Docker Compose for Agent Workflow
+#
+# Usage:
+#   docker-compose build                    # Build the container
+#   docker-compose run --rm agent           # Interactive session
+#   docker-compose run --rm agent ./scripts/run-task.sh A1   # Run specific task
+#
+# Environment variables (set in .env or export):
+#   GITHUB_TOKEN          - Required for gh CLI (Copilot + PR creation)
+#   GIT_USER_NAME         - Git commit author name
+#   GIT_USER_EMAIL        - Git commit author email
+
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labsworld-agent
+
+    # Mount the parent directory (plugin/) as workspace
+    volumes:
+      - ..:/workspace:rw
+      # Persist gradle cache for faster builds
+      - gradle-cache:/home/agent/.gradle
+      # Persist gh CLI config (auth + copilot)
+      - gh-config:/home/agent/.config/gh
+
+    # Pass secrets via environment
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GIT_AUTHOR_NAME=${GIT_USER_NAME:-Agent}
+      - GIT_AUTHOR_EMAIL=${GIT_USER_EMAIL:-agent@localhost}
+      - GIT_COMMITTER_NAME=${GIT_USER_NAME:-Agent}
+      - GIT_COMMITTER_EMAIL=${GIT_USER_EMAIL:-agent@localhost}
+
+    # Working directory inside container
+    working_dir: /workspace
+
+    # Interactive mode by default
+    stdin_open: true
+    tty: true
+
+    # Resource limits (adjust as needed)
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+volumes:
+  gradle-cache:
+    name: labsworld-gradle-cache
+  gh-config:
+    name: labsworld-gh-config
