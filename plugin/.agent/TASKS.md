@@ -177,7 +177,7 @@ grep -r "NamespacedKey.*npc_" src/main/kotlin --include="*.kt" | grep -v "Villag
 | Field            | Value                      |
 | ---------------- | -------------------------- |
 | **ID**           | `A2`                       |
-| **Status**       | `[ ]`                      |
+| **Status**       | `[x]`                      |
 | **Dependencies** | `A1`                       |
 | **Branch**       | `refactor/a2-npc-creation` |
 
