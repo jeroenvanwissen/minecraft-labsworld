@@ -227,7 +227,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
 | Field            | Value                         |
 | ---------------- | ----------------------------- |
 | **ID**           | `A3`                          |
-| **Status**       | `[ ]`                         |
+| **Status**       | `[x]`                         |
 | **Dependencies** | `A0`                          |
 | **Branch**       | `refactor/a3-datafolder-init` |
 
