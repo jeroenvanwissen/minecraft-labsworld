@@ -420,7 +420,7 @@ wc -l src/main/kotlin/nl/jeroenlabs/labsWorld/LabsWorld.kt  # Should be ~230 or 
 | Field            | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | `B3`                           |
-| **Status**       | `[ ]`                          |
+| **Status**       | `[x]`                          |
 | **Dependencies** | `B1`                           |
 | **Branch**       | `refactor/b3-spawnpoint-logic` |
 
