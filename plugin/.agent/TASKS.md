@@ -60,13 +60,67 @@ The agent MUST stop and ask the user when:
 
 ## Phase A — Foundation
 
+### Task A0: Rename Npc* to VillagerNpc*
+
+| Field            | Value                    |
+| ---------------- | ------------------------ |
+| **ID**           | `A0`                     |
+| **Status**       | `[ ]`                    |
+| **Dependencies** | None                     |
+| **Branch**       | `refactor/a0-npc-rename` |
+
+**Goal:**
+Rename all NPC-related files and classes from `Npc*` to `VillagerNpc*` to make the naming explicit (these are Villager entities, not a generic NPC system).
+
+**Scope:**
+
+```
+src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
+├── NpcManager.kt           → VillagerNpcManager.kt
+├── NpcLinkManager.kt       → VillagerNpcLinkManager.kt
+├── NpcAggroService.kt      → VillagerNpcAggroService.kt
+├── NpcSpawnPointManager.kt → VillagerNpcSpawnPointManager.kt
+└── NpcSpawnPointListener.kt → VillagerNpcSpawnPointListener.kt
+```
+
+**Implementation:**
+
+1. Rename each file and its class:
+    - `NpcManager` → `VillagerNpcManager`
+    - `NpcLinkManager` → `VillagerNpcLinkManager`
+    - `NpcAggroService` → `VillagerNpcAggroService`
+    - `NpcSpawnPointManager` → `VillagerNpcSpawnPointManager`
+    - `NpcSpawnPointListener` → `VillagerNpcSpawnPointListener`
+2. Update all imports across the codebase to use new names
+3. Update any string references (e.g., in logs or messages) if applicable
+
+**Acceptance Criteria:**
+
+- [ ] All 5 files renamed to `VillagerNpc*` pattern
+- [ ] All class names match their file names
+- [ ] All imports updated throughout codebase
+- [ ] No references to old `Npc*` class names remain
+- [ ] Build passes with no errors
+
+**Commands:**
+
+```bash
+./gradlew compileKotlin
+./gradlew shadowJar
+# Verify no old names remain:
+grep -r "class Npc[A-Z]" src/main/kotlin --include="*.kt" | wc -l  # Should be 0
+grep -r "import.*\.npc\.Npc[A-Z]" src/main/kotlin --include="*.kt" | wc -l  # Should be 0
+```
+
+---
+
 ### Task A1: Centralise NPC NamespacedKeys
 
 | Field            | Value                  |
 | ---------------- | ---------------------- |
 | **ID**           | `A1`                   |
 | **Status**       | `[ ]`                  |
-| **Dependencies** | None                   |
+| **Dependencies** | `A0`                   |
 | **Branch**       | `refactor/a1-npc-keys` |
 
 **Goal:**
@@ -174,7 +228,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
 | ---------------- | ----------------------------- |
 | **ID**           | `A3`                          |
 | **Status**       | `[ ]`                         |
-| **Dependencies** | None                          |
+| **Dependencies** | `A0`                          |
 | **Branch**       | `refactor/a3-datafolder-init` |
 
 **Goal:**

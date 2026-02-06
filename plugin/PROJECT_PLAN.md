@@ -32,6 +32,9 @@ The plugin works and has a clear domain: Twitch viewers interact with a Minecraf
 | Inconsistent patterns    | 4     | Medium   |
 | Dead / unnecessary code  | 2     | Low      |
 
+> **Note:** This document uses `VillagerNpc*` naming (e.g., `VillagerNpcManager.kt`) which is the target state.
+> The current codebase uses `Npc*` naming. Task A0 in [.agent/TASKS.md](.agent/TASKS.md) performs this rename first.
+
 ---
 
 ## Step 1 — Centralise NPC NamespacedKeys

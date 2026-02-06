@@ -311,8 +311,9 @@ Run tasks respecting dependencies:
 
 **Phase A (Foundation):**
 
-- A1 → A2 (A2 depends on A1)
-- A3 (independent)
+- A0 first (rename Npc* → VillagerNpc*)
+- A1, A3 (both depend on A0)
+- A2 (depends on A1)
 
 **Phase B (NPC Layer):**
 
