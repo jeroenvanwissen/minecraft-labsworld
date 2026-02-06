@@ -13,9 +13,6 @@ object VillagerNpcKeys {
     /** Key to mark an entity as a custom NPC (value: 1 byte). */
     fun customNpcTag(plugin: Plugin): NamespacedKey = NamespacedKey(plugin, "custom_npc")
 
-    /** Key for the owner UUID of a custom NPC (value: UUID string). */
-    fun owner(plugin: Plugin): NamespacedKey = NamespacedKey(plugin, "npc_owner")
-
     /** Key for the linked Twitch user ID (value: user ID string). */
     fun twitchUserId(plugin: Plugin): NamespacedKey = NamespacedKey(plugin, "npc_twitch_user_id")
 

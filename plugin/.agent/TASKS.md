@@ -271,7 +271,7 @@ grep -r "dataFolder.exists" src/main/kotlin --include="*.kt" | wc -l  # Should b
 | Field            | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | `A4`                           |
-| **Status**       | `[ ]`                          |
+| **Status**       | `[x]`                          |
 | **Dependencies** | `A2`                           |
 | **Branch**       | `refactor/a4-remove-owner-npc` |
 

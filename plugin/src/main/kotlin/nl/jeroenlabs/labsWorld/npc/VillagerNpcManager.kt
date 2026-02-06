@@ -6,25 +6,9 @@ import org.bukkit.entity.EntityType
 import org.bukkit.entity.Villager
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.UUID
-
 class VillagerNpcManager(
     private val plugin: JavaPlugin,
 ) {
-    /**
-     * Creates a custom NPC owned by a specific player.
-     */
-    fun createCustomNpc(
-        location: Location,
-        name: String? = null,
-        profession: Villager.Profession? = null,
-        owner: UUID,
-    ): Villager {
-        val npc = spawnBaseVillagerNpc(location, name, profession)
-        npc.persistentDataContainer.set(VillagerNpcKeys.owner(plugin), PersistentDataType.STRING, owner.toString())
-        return npc
-    }
-
     /**
      * Creates an NPC linked to a Twitch user.
      */
@@ -106,9 +90,4 @@ class VillagerNpcManager(
         plugin.server.worlds.flatMap { world ->
             world.livingEntities.filterIsInstance<Villager>().filter { isCustomNpc(it) }
         }
-
-    fun getOwnerOfNpc(villager: Villager): UUID? {
-        val str = villager.persistentDataContainer.get(VillagerNpcKeys.owner(plugin), PersistentDataType.STRING)
-        return str?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-    }
 }
