@@ -78,7 +78,8 @@ Rename all NPC-related files and classes from `Npc*` to `VillagerNpc*` to make t
 src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
 ├── NpcManager.kt           → VillagerNpcManager.kt
 ├── NpcLinkManager.kt       → VillagerNpcLinkManager.kt
-├── NpcAggroService.kt      → VillagerNpcAggroService.kt
+├── NpcSwarmService.kt      → VillagerNpcSwarmService.kt
+├── NpcAttackService.kt     → VillagerNpcAttackService.kt
 ├── NpcSpawnPointManager.kt → VillagerNpcSpawnPointManager.kt
 └── NpcSpawnPointListener.kt → VillagerNpcSpawnPointListener.kt
 ```
@@ -88,7 +89,8 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
 1. Rename each file and its class:
     - `NpcManager` → `VillagerNpcManager`
     - `NpcLinkManager` → `VillagerNpcLinkManager`
-    - `NpcAggroService` → `VillagerNpcAggroService`
+    - `NpcSwarmService` → `VillagerNpcSwarmService`
+    - `NpcAttackService` → `VillagerNpcAttackService`
     - `NpcSpawnPointManager` → `VillagerNpcSpawnPointManager`
     - `NpcSpawnPointListener` → `VillagerNpcSpawnPointListener`
 2. Update all imports across the codebase to use new names
@@ -133,7 +135,8 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/npc/
 ├── VillagerNpcKeys.kt          # CREATE
 ├── VillagerNpcManager.kt       # MODIFY (remove twitchUserIdKey)
 ├── VillagerNpcLinkManager.kt   # MODIFY (remove linkedUserIdKey)
-└── VillagerNpcAggroService.kt  # MODIFY (remove linkedUserIdKey)
+├── VillagerNpcSwarmService.kt  # MODIFY (remove linkedUserIdKey)
+└── VillagerNpcAttackService.kt # MODIFY (remove linkedUserIdKey)
 ```
 
 **Implementation:**
@@ -323,14 +326,15 @@ grep -r "createCustomNpc\|getOwnerOfNpc\|npc_owner" src/main/kotlin --include="*
 | **Branch**       | `refactor/b1-find-linked-npcs` |
 
 **Goal:**
-Eliminate duplicate world-scanning logic in `VillagerNpcAggroService` by delegating to `VillagerNpcLinkManager`.
+Eliminate duplicate world-scanning logic in `VillagerNpcSwarmService` and `VillagerNpcAttackService` by delegating to `VillagerNpcLinkManager`.
 
 **Scope:**
 
 ```
 src/main/kotlin/nl/jeroenlabs/labsWorld/
 ├── npc/VillagerNpcLinkManager.kt   # MODIFY (add findAllLinkedVillagerNpcs)
-├── npc/VillagerNpcAggroService.kt  # MODIFY (remove private method, inject LinkManager)
+├── npc/VillagerNpcSwarmService.kt  # MODIFY (remove private method, inject LinkManager)
+├── npc/VillagerNpcAttackService.kt # MODIFY (remove private method, inject LinkManager)
 └── LabsWorld.kt                    # MODIFY (update constructor wiring)
 ```
 
@@ -340,16 +344,20 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/
     ```kotlin
     fun findAllLinkedVillagerNpcs(): List<Villager>
     ```
-2. Inject `VillagerNpcLinkManager` into `VillagerNpcAggroService` constructor
-3. Delete private `findAllLinkedVillagerNpcs()` from `VillagerNpcAggroService`
-4. Update `VillagerNpcAggroService` to call the injected manager
-5. Update `LabsWorld.kt` to pass the link manager when constructing the aggro service
+2. Inject `VillagerNpcLinkManager` into `VillagerNpcSwarmService` constructor
+3. Inject `VillagerNpcLinkManager` into `VillagerNpcAttackService` constructor
+4. Delete private `findAllLinkedVillagerNpcs()` from both service classes
+5. Update both services to call the injected manager
+6. Update `LabsWorld.kt` to pass the link manager when constructing the services
 
 **Acceptance Criteria:**
 
-- [ ] `VillagerNpcAggroService` has no `findAllLinkedVillagerNpcs` method
-- [ ] `VillagerNpcAggroService` has no `linkedUserIdKey` property
-- [ ] `VillagerNpcAggroService` constructor accepts `VillagerNpcLinkManager`
+- [ ] `VillagerNpcSwarmService` has no `findAllLinkedVillagerNpcs` method
+- [ ] `VillagerNpcSwarmService` has no `linkedUserIdKey` property
+- [ ] `VillagerNpcSwarmService` constructor accepts `VillagerNpcLinkManager`
+- [ ] `VillagerNpcAttackService` has no `findAllLinkedVillagerNpcs` method
+- [ ] `VillagerNpcAttackService` has no `linkedUserIdKey` property
+- [ ] `VillagerNpcAttackService` constructor accepts `VillagerNpcLinkManager`
 - [ ] `VillagerNpcLinkManager` has public `findAllLinkedVillagerNpcs()` method
 
 **Commands:**
@@ -357,7 +365,8 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/
 ```bash
 ./gradlew compileKotlin
 ./gradlew shadowJar
-grep -r "linkedUserIdKey" src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcAggroService.kt | wc -l  # Should be 0
+grep -r "linkedUserIdKey" src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcSwarmService.kt | wc -l  # Should be 0
+grep -r "linkedUserIdKey" src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcAttackService.kt | wc -l  # Should be 0
 ```
 
 ---
@@ -1042,21 +1051,21 @@ grep -r "when.*type\|\"fireworks\"\|\"heal\"\|\"spawn_mob\"" src/main/kotlin/nl/
 | **Branch**       | `refactor/e5-commands-delegate` |
 
 **Goal:**
-Refactor `SpawnSubcommand` to delegate to action handler. Delete unused `AggroSubcommand` and `AttackSubcommand`.
+Refactor `SpawnSubcommand` to delegate to action handler. Delete unused `SwarmSubcommand` and `AttackSubcommand`.
 
 **Scope:**
 
 ```
 src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/lw/
 ├── SpawnSubcommand.kt      # MODIFY (delegate to action)
-├── AggroSubcommand.kt      # DELETE
+├── SwarmSubcommand.kt      # DELETE
 ├── AttackSubcommand.kt     # DELETE
 └── LwSubcommands.kt        # MODIFY (remove deleted commands)
 ```
 
 **Implementation:**
 
-1. Delete `AggroSubcommand.kt` (aggro is redeem-only)
+1. Delete `SwarmSubcommand.kt` (swarm is redeem-only)
 2. Delete `AttackSubcommand.kt` (attack is redeem-only)
 3. Update `LwSubcommands.all` to remove deleted commands
 4. Refactor `SpawnSubcommand`:
@@ -1066,7 +1075,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/lw/
 
 **Acceptance Criteria:**
 
-- [ ] `AggroSubcommand.kt` does not exist
+- [ ] `SwarmSubcommand.kt` does not exist
 - [ ] `AttackSubcommand.kt` does not exist
 - [ ] `LwSubcommands.all` does not reference deleted commands
 - [ ] `SpawnSubcommand` delegates to action handler
@@ -1077,7 +1086,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/lw/
 ```bash
 ./gradlew compileKotlin
 ./gradlew shadowJar
-ls src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/lw/  # Should not list Aggro or Attack
+ls src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/lw/  # Should not list Swarm or Attack
 ```
 
 ---
@@ -1184,6 +1193,331 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/
 
 ---
 
+## Phase T — Unit Testing
+
+### Task T0: Bootstrap Test Framework
+
+| Field            | Value                          |
+| ---------------- | ------------------------------ |
+| **ID**           | `T0`                           |
+| **Status**       | `[ ]`                          |
+| **Dependencies** | None                           |
+| **Branch**       | `test/t0-framework-bootstrap`  |
+
+**Goal:**
+Set up the baseline unit test framework (JUnit 5 + MockK) and make `./gradlew test` runnable.
+
+**Scope:**
+
+```
+build.gradle.kts                                 # MODIFY
+src/test/kotlin/nl/jeroenlabs/labsWorld/         # CREATE (base test package)
+```
+
+**Implementation:**
+
+1. Add test dependencies:
+   - `testImplementation(kotlin("test"))`
+   - `testImplementation("org.junit.jupiter:junit-jupiter:<version>")`
+   - `testImplementation("io.mockk:mockk:<version>")`
+2. Configure `tasks.test { useJUnitPlatform() }`
+3. Create a minimal test package under `src/test/kotlin`
+
+**Acceptance Criteria:**
+
+- [ ] `./gradlew test` executes successfully
+- [ ] Test dependencies are present in `build.gradle.kts`
+- [ ] JUnit platform is enabled
+
+**Commands:**
+
+```bash
+./gradlew test
+./gradlew build
+```
+
+---
+
+### Task T1: Add Coercions Unit Tests
+
+| Field            | Value                    |
+| ---------------- | ------------------------ |
+| **ID**           | `T1`                     |
+| **Status**       | `[ ]`                    |
+| **Dependencies** | `T0`                     |
+| **Branch**       | `test/t1-coercions`      |
+
+**Goal:**
+Add deterministic unit tests for value coercion helpers.
+
+**Scope:**
+
+```
+src/test/kotlin/nl/jeroenlabs/labsWorld/util/
+└── CoercionsTest.kt                             # CREATE
+```
+
+**Implementation:**
+
+1. Test `anyToInt`, `anyToDouble`, `anyToString`, `anyToBool`, `anyToStringList`
+2. Cover valid, invalid, null, and edge-case inputs
+
+**Acceptance Criteria:**
+
+- [ ] `CoercionsTest` exists
+- [ ] Core coercion behavior is asserted
+- [ ] `./gradlew test` passes
+
+**Commands:**
+
+```bash
+./gradlew test --tests "*CoercionsTest"
+./gradlew test
+```
+
+---
+
+### Task T2: Add ActionUtils Parsing Tests
+
+| Field            | Value                        |
+| ---------------- | ---------------------------- |
+| **ID**           | `T2`                         |
+| **Status**       | `[ ]`                        |
+| **Dependencies** | `T0`                         |
+| **Branch**       | `test/t2-action-utils`       |
+
+**Goal:**
+Test pure parsing helpers in `ActionUtils` without needing a running server.
+
+**Scope:**
+
+```
+src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/
+└── ActionUtilsParsingTest.kt                    # CREATE
+```
+
+**Implementation:**
+
+1. Test `parseFireworkType`
+2. Test `parseEntityType`
+3. Test `parseItemStacks`
+4. Test `pickDefaultWorld` (null/first-world behavior)
+
+**Acceptance Criteria:**
+
+- [ ] `ActionUtilsParsingTest` exists
+- [ ] Parsing helpers have deterministic tests
+- [ ] `./gradlew test` passes
+
+**Commands:**
+
+```bash
+./gradlew test --tests "*ActionUtilsParsingTest"
+./gradlew test
+```
+
+---
+
+### Task T3: Add TwitchConfigManager Binding Tests
+
+| Field            | Value                          |
+| ---------------- | ------------------------------ |
+| **ID**           | `T3`                           |
+| **Status**       | `[ ]`                          |
+| **Dependencies** | `T0`                           |
+| **Branch**       | `test/t3-config-bindings`      |
+
+**Goal:**
+Validate parsing and filtering behavior of config-driven command/redeem bindings.
+
+**Scope:**
+
+```
+src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/
+├── TwitchConfigManagerBindingsTest.kt           # CREATE
+└── resources/fixtures/twitch/                   # CREATE (small YAML fixtures)
+```
+
+**Implementation:**
+
+1. Test `getRedeemBindings()` matcher/handler/actions rules
+2. Test `getCommandBindings()` permission and action parsing
+3. Test `reloadVersion` increments on init/reload
+
+**Acceptance Criteria:**
+
+- [ ] Valid and invalid config shapes are covered
+- [ ] Reload version behavior is asserted
+- [ ] `./gradlew test` passes
+
+**Commands:**
+
+```bash
+./gradlew test --tests "*TwitchConfigManagerBindingsTest"
+./gradlew test
+```
+
+---
+
+### Task T4: Add TwitchAuth Permission Matrix Tests
+
+| Field            | Value                        |
+| ---------------- | ---------------------------- |
+| **ID**           | `T4`                         |
+| **Status**       | `[ ]`                        |
+| **Dependencies** | `T0`                         |
+| **Branch**       | `test/t4-auth-matrix`        |
+
+**Goal:**
+Codify permission behavior for all roles with table-style tests.
+
+**Scope:**
+
+```
+src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/
+└── TwitchAuthTest.kt                            # CREATE
+```
+
+**Implementation:**
+
+1. Build test fixtures/mocks for broadcaster/mod/vip/subscriber events
+2. Validate `isAuthorized` outcomes for each `Permission` value
+
+**Acceptance Criteria:**
+
+- [ ] Permission matrix tests exist and pass
+- [ ] Regression around role precedence is prevented
+- [ ] `./gradlew test` passes
+
+**Commands:**
+
+```bash
+./gradlew test --tests "*TwitchAuthTest"
+./gradlew test
+```
+
+---
+
+### Task T5: Add Dispatcher Unit Tests
+
+| Field            | Value                            |
+| ---------------- | -------------------------------- |
+| **ID**           | `T5`                             |
+| **Status**       | `[ ]`                            |
+| **Dependencies** | `T3`, `T4`                       |
+| **Branch**       | `test/t5-dispatchers`            |
+
+**Goal:**
+Add branch-coverage tests for command/redeem dispatch flow.
+
+**Scope:**
+
+```
+src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/
+└── CommandDispatcherTest.kt                     # CREATE
+src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/redeems/
+└── RedeemDispatcherTest.kt                      # CREATE
+```
+
+**Implementation:**
+
+1. Command dispatcher: command found/not found, unauthorized, init-once
+2. Redeem dispatcher: unmatched, missing handler, action execution path
+
+**Acceptance Criteria:**
+
+- [ ] `CommandDispatcherTest` exists
+- [ ] `RedeemDispatcherTest` exists
+- [ ] Key dispatch branches are asserted
+- [ ] `./gradlew test` passes
+
+**Commands:**
+
+```bash
+./gradlew test --tests "*CommandDispatcherTest" --tests "*RedeemDispatcherTest"
+./gradlew test
+```
+
+---
+
+### Task T6: Bukkit Test Harness Spike + First NPC Test
+
+| Field            | Value                             |
+| ---------------- | --------------------------------- |
+| **ID**           | `T6`                              |
+| **Status**       | `[ ]`                             |
+| **Dependencies** | `T0`                              |
+| **Branch**       | `test/t6-bukkit-harness-spike`    |
+
+**Goal:**
+Validate a mock Bukkit test harness and land the first NPC lifecycle test.
+
+**Scope:**
+
+```
+build.gradle.kts                                  # MODIFY (if extra test lib is needed)
+src/test/kotlin/nl/jeroenlabs/labsWorld/npc/
+└── VillagerNpcLinkManagerTest.kt                 # CREATE
+```
+
+**Implementation:**
+
+1. Add compatible Bukkit/Paper test harness dependency (if required)
+2. Create one end-to-end test for `VillagerNpcLinkManager` (`spawned` vs `teleported`)
+3. Document known harness limitations in test comments
+
+**Acceptance Criteria:**
+
+- [ ] One NPC lifecycle test runs in mocked server context
+- [ ] `./gradlew test` passes
+- [ ] Limitations are documented for follow-up tasks
+
+**Commands:**
+
+```bash
+./gradlew test --tests "*VillagerNpcLinkManagerTest"
+./gradlew test
+```
+
+---
+
+### Task T7: CI Test Gate
+
+| Field            | Value                     |
+| ---------------- | ------------------------- |
+| **ID**           | `T7`                      |
+| **Status**       | `[ ]`                     |
+| **Dependencies** | `T1`, `T2`, `T3`, `T4`    |
+| **Branch**       | `test/t7-ci-test-gate`    |
+
+**Goal:**
+Enforce unit tests in CI for pull requests.
+
+**Scope:**
+
+```
+.github/workflows/                                # MODIFY/CREATE CI workflow
+```
+
+**Implementation:**
+
+1. Add/extend workflow to run `./gradlew test`
+2. Make workflow required for PR merge
+
+**Acceptance Criteria:**
+
+- [ ] CI runs tests on PRs
+- [ ] Failing tests block merge
+- [ ] Workflow is documented briefly in repo docs (if needed)
+
+**Commands:**
+
+```bash
+./gradlew test
+```
+
+---
+
 ## Summary
 
 | Phase             | Tasks              | Est. PRs           |
@@ -1194,7 +1528,8 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/
 | D — Twitch Layer  | D1, D2, D3, D4     | 4-6 (D1 may split) |
 | E — Action System | E1, E2, E3, E4, E5 | 5-7 (E3 may split) |
 | F — Polish        | F1, F2             | 2                  |
-| **Total**         | **17 tasks**       | **20-24 PRs**      |
+| T — Unit Testing  | T0, T1, T2, T3, T4, T5, T6, T7 | 8-10 |
+| **Total**         | **25 tasks**       | **28-34 PRs**      |
 
 ---
 
@@ -1206,6 +1541,9 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/
 
 # Build JAR
 ./gradlew shadowJar
+
+# Run unit tests
+./gradlew test
 
 # Run test server (manual verification)
 ./gradlew runServer
@@ -1237,6 +1575,15 @@ D1 ──┬──> D2 ──> D3
      └──> E1 ──> E2 ──> E3 ──> E4 ──> E5
 
 F2 ──> (independent)
+
+T0 ──┬──> T1
+     ├──> T2
+     ├──> T3 ──┐
+     ├──> T4 ──┼──> T5
+     ├──> T6   │
+     └─────────┘
+
+T1,T2,T3,T4 ──> T7
 ```
 
 **Parallelizable groups:**
@@ -1247,3 +1594,6 @@ F2 ──> (independent)
 - `{D1, F2}` can start immediately
 - `{B2, B3}` after B1
 - `{D2, D4, E1}` after D1
+- `{T1, T2, T3, T4, T6}` after T0
+- `{T5}` after T3 + T4
+- `{T7}` after T1 + T2 + T3 + T4
