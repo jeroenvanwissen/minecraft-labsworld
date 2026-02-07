@@ -3,6 +3,7 @@ package nl.jeroenlabs.labsWorld.twitch.redeems.handlers
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandler
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandlerContext
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemInvocation
+import nl.jeroenlabs.labsWorld.util.WorldStateUtils
 import org.bukkit.Bukkit
 
 object WorldStateHandler : RedeemHandler {
@@ -13,13 +14,6 @@ object WorldStateHandler : RedeemHandler {
         val world = Bukkit.getWorlds().firstOrNull() ?: return
         val stateType = params["type"] as? String ?: error("Missing state type")
 
-        when (stateType.lowercase()) {
-            "day" -> world.time = 1000
-            "night" -> world.time = 13000
-            "clear" -> world.setStorm(false)
-            "rain" -> world.setStorm(true)
-            "thunder" -> { world.setStorm(true); world.isThundering = true }
-            else -> error("Invalid state type: $stateType")
-        }
+        WorldStateUtils.setWorldState(world, stateType)
     }
 }

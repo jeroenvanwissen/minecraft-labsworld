@@ -21,6 +21,7 @@ import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
 import nl.jeroenlabs.labsWorld.util.anyToStringList
 import nl.jeroenlabs.labsWorld.util.PlayerUtils
+import nl.jeroenlabs.labsWorld.util.WorldStateUtils
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -347,25 +348,7 @@ object ActionExecutor {
         val durationSeconds = anyToInt(params["duration_seconds"], 60).coerceAtLeast(1)
         val ticks = durationSeconds * 20
 
-        when (state) {
-            "clear" -> {
-                world.setStorm(false)
-                world.isThundering = false
-//                world.weatherDuration = ticks
-            }
-            "rain" -> {
-                world.setStorm(true)
-                world.isThundering = false
-                world.weatherDuration = ticks
-            }
-            "storm", "thunder" -> {
-                world.setStorm(true)
-                world.isThundering = true
-                world.weatherDuration = ticks
-                world.thunderDuration = ticks
-            }
-            else -> error("Unknown weather state '$state'")
-        }
+        WorldStateUtils.setWorldState(world, state, ticks)
     }
 
     private fun parseFireworkType(shape: String): FireworkEffect.Type =
