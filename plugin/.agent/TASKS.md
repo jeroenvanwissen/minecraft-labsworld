@@ -1486,7 +1486,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/npc/
 | Field            | Value                     |
 | ---------------- | ------------------------- |
 | **ID**           | `T7`                      |
-| **Status**       | `[ ]`                     |
+| **Status**       | `[x]`                     |
 | **Dependencies** | `T1`, `T2`, `T3`, `T4`    |
 | **Branch**       | `test/t7-ci-test-gate`    |
 
@@ -1506,9 +1506,9 @@ Enforce unit tests in CI for pull requests.
 
 **Acceptance Criteria:**
 
-- [ ] CI runs tests on PRs
-- [ ] Failing tests block merge
-- [ ] Workflow is documented briefly in repo docs (if needed)
+- [x] CI runs tests on PRs
+- [x] Failing tests block merge
+- [x] Workflow is documented briefly in repo docs (if needed)
 
 **Commands:**
 
