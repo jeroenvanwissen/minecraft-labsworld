@@ -184,18 +184,7 @@ class LootChestActionHandler : ActionHandler {
     }
 
     private fun setChestNameBestEffort(chest: Chest, name: String) {
-        val methods = chest.javaClass.methods
-        methods.firstOrNull { it.name == "customName" && it.parameterCount == 1 }?.let { m ->
-            val param = m.parameterTypes.firstOrNull()
-            if (param != null && param.name == "net.kyori.adventure.text.Component") {
-                m.invoke(chest, Component.text(name))
-                return
-            }
-        }
-
-        methods.firstOrNull { it.name == "setCustomName" && it.parameterCount == 1 && it.parameterTypes[0] == String::class.java }?.let { m ->
-            m.invoke(chest, name)
-            return
-        }
+        // Paper API: customName(Component) is always available
+        chest.customName(Component.text(name))
     }
 }
