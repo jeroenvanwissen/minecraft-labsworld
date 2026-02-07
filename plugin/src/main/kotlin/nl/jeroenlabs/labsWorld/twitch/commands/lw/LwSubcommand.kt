@@ -1,17 +1,17 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
 import nl.jeroenlabs.labsWorld.LabsWorld
-import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 
 interface LwSubcommand {
     val name: String
     val aliases: Set<String> get() = emptySet()
-    fun handle(ctx: CommandContext, inv: CommandInvocation)
+    fun handle(ctx: TwitchContext, inv: CommandInvocation)
 }
 
 // Shared helpers for subcommands
-fun CommandContext.labsWorld(): LabsWorld? = plugin as? LabsWorld
+fun TwitchContext.labsWorld(): LabsWorld = plugin
 
 fun parseDuration(arg: String?, default: Int = 30): Int =
     (arg?.toIntOrNull() ?: default).coerceIn(1, 300)

@@ -1,19 +1,19 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
 import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
-import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 import nl.jeroenlabs.labsWorld.util.PlayerUtils
 
 object AggroSubcommand : LwSubcommand {
     override val name = "aggro"
 
-    override fun handle(ctx: CommandContext, inv: CommandInvocation) {
+    override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
         if (!TwitchChatAuth.isBroadcasterOrModerator(inv.event)) {
             return inv.replyMention("You don't have permission.")
         }
 
-        val plugin = ctx.labsWorld() ?: return inv.replyMention("Plugin error")
+        val plugin = ctx.labsWorld()
 
         plugin.server.scheduler.runTask(plugin, Runnable {
             val target = PlayerUtils.pickTargetPlayer(plugin.server, inv.args.getOrNull(1), allowRandom = false)

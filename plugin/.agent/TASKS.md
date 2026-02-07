@@ -625,7 +625,7 @@ grep -r "storage" src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands --incl
 | Field            | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | `D1`                         |
-| **Status**       | `[ ]`                        |
+| **Status**       | `[x]`                        |
 | **Dependencies** | None                         |
 | **Branch**       | `refactor/d1-twitch-context` |
 

@@ -1,13 +1,13 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
-import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 
 object DuelSubcommand : LwSubcommand {
     override val name = "duel"
 
-    override fun handle(ctx: CommandContext, inv: CommandInvocation) {
-        val plugin = ctx.labsWorld() ?: return inv.replyMention("Plugin error")
+    override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
+        val plugin = ctx.labsWorld()
 
         // Require invoker to have an NPC
         if (plugin.getStoredLinkedUserName(inv.userId) == null) {

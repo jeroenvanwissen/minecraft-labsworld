@@ -6,28 +6,26 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.entity.Display
 import org.bukkit.entity.TextDisplay
 import org.bukkit.entity.Villager
-import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 
 class CommandDispatcher(
-    private val plugin: JavaPlugin,
-    private val twitchClient: TwitchClient,
-    private val twitchConfigManager: TwitchConfigManager,
+    val context: TwitchContext,
 ) {
+    private val plugin get() = context.plugin
+    private val twitchClient get() = context.twitchClient
+    private val twitchConfigManager get() = context.twitchConfigManager
+
     private val commands = ConcurrentHashMap<String, Command>()
     private val initializedCommands = ConcurrentHashMap.newKeySet<String>()
     private val configCommandNames = ConcurrentHashMap.newKeySet<String>()
     private var configVersionSeen: Long = -1
-
-    val context: CommandContext by lazy {
-        CommandContext(plugin, twitchClient, twitchConfigManager)
-    }
 
     fun register(command: Command) {
         commands[command.name.lowercase()] = command
@@ -39,9 +37,8 @@ class CommandDispatcher(
         val raw = event.message
         if (!raw.startsWith("!")) {
             val userName = event.user.name
-            val labsWorld = plugin as? nl.jeroenlabs.labsWorld.LabsWorld
             val resolvedUserId =
-                labsWorld?.resolveLinkedUserIdByUserName(userName)
+                plugin.resolveLinkedUserIdByUserName(userName)
                     ?: event.user.id
                     ?: event.user.name
 
@@ -49,7 +46,7 @@ class CommandDispatcher(
                 plugin,
                 Runnable {
                     plugin.logger.info("Twitch Event User: ${event.user}")
-                    val villager = (plugin as? nl.jeroenlabs.labsWorld.LabsWorld)?.getNpcByUserId(resolvedUserId)
+                    val villager = plugin.getNpcByUserId(resolvedUserId)
                     if (villager == null) {
                         plugin.logger.info("Chat message from @$userName (no linked NPC): ${event.message}")
                     } else {
@@ -148,7 +145,7 @@ class CommandDispatcher(
     }
 
     private fun showVillagerChatBubbleWhenNearby(
-        plugin: JavaPlugin,
+        plugin: nl.jeroenlabs.labsWorld.LabsWorld,
         villager: Villager,
         message: String,
         radius: Double = 5.0,

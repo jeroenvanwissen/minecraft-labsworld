@@ -1,9 +1,10 @@
 package nl.jeroenlabs.labsWorld.twitch.commands
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 
 class CommandInvocation(
-    val context: CommandContext,
+    val context: TwitchContext,
     val event: ChannelMessageEvent,
     val commandName: String,
     val args: List<String>,

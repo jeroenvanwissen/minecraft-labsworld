@@ -4,6 +4,7 @@ import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.eventsub.events.ChannelPointsCustomRewardRedemptionEvent
 import com.github.twitch4j.eventsub.subscriptions.SubscriptionTypes
+import nl.jeroenlabs.labsWorld.LabsWorld
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandDispatcher
 import nl.jeroenlabs.labsWorld.twitch.commands.LwCommand
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemDispatcher
@@ -16,11 +17,17 @@ class TwitchEventHandler(
     private val twitchConfigManager: TwitchConfigManager,
     private val twitchClientManager: TwitchClientManager? = null,
 ) {
-    private val commandDispatcher = CommandDispatcher(plugin, twitchClient, twitchConfigManager).also {
-        it.register(LwCommand(it.context))
+    private val context = TwitchContext(
+        plugin = plugin as LabsWorld,
+        twitchClient = twitchClient,
+        twitchConfigManager = twitchConfigManager,
+    )
+
+    private val commandDispatcher = CommandDispatcher(context).also {
+        it.register(LwCommand(context))
     }
 
-    private val redeemDispatcher = RedeemDispatcher(plugin, twitchClient, twitchConfigManager).also {
+    private val redeemDispatcher = RedeemDispatcher(context).also {
         RedeemHandlers.all.forEach { handler -> it.register(handler) }
     }
 
