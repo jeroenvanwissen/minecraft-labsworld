@@ -39,11 +39,12 @@ The plugin works and has a clear domain: Twitch viewers interact with a Minecraf
 
 ## Step 1 — Centralise NPC NamespacedKeys
 
-**Problem:** The key `NamespacedKey(plugin, "npc_twitch_user_id")` is defined independently in **three** classes:
+**Problem:** The key `NamespacedKey(plugin, "npc_twitch_user_id")` is defined independently in **four** classes:
 
 - `VillagerNpcManager.twitchUserIdKey`
 - `VillagerNpcLinkManager.linkedUserIdKey`
-- `VillagerNpcAggroService.linkedUserIdKey`
+- `VillagerNpcSwarmService.linkedUserIdKey`
+- `VillagerNpcAttackService.linkedUserIdKey`
 
 If one changes, the others silently break. Each class creates its own instance to do the same PDC lookups.
 
@@ -51,9 +52,9 @@ If one changes, the others silently break. Each class creates its own instance t
 
 1. Create a `VillagerNpcKeys` object in the `npc` package that holds all NPC-related `NamespacedKey` instances.
 2. Provide utility functions like `isLinkedVillagerNpc(villager)` and `getLinkedUserId(villager)` on this object.
-3. Replace all three private key definitions with references to `VillagerNpcKeys`.
+3. Replace all four private key definitions with references to `VillagerNpcKeys`.
 
-**Files affected:** `VillagerNpcManager.kt`, `VillagerNpcLinkManager.kt`, `VillagerNpcAggroService.kt`
+**Files affected:** `VillagerNpcManager.kt`, `VillagerNpcLinkManager.kt`, `VillagerNpcSwarmService.kt`, `VillagerNpcAttackService.kt`
 **Risk:** Low — mechanical rename, no behaviour change.
 
 ---
@@ -74,15 +75,16 @@ If one changes, the others silently break. Each class creates its own instance t
 
 ## Step 3 — Move `findAllLinkedVillagerNpcs()` into VillagerNpcLinkManager
 
-**Problem:** `VillagerNpcAggroService` has its own `findAllLinkedVillagerNpcs()` that duplicates the world-scanning + PDC filtering logic already present in `VillagerNpcLinkManager.findLoadedVillagerNpcByUserId()`. The aggro service shouldn't need to know about `NamespacedKey` or `PersistentDataType` at all.
+**Problem:** `VillagerNpcSwarmService` and `VillagerNpcAttackService` have their own `findAllLinkedVillagerNpcs()` that duplicates the world-scanning + PDC filtering logic already present in `VillagerNpcLinkManager.findLoadedVillagerNpcByUserId()`. These services shouldn't need to know about `NamespacedKey` or `PersistentDataType` at all.
 
 **Fix:**
 
 1. Add `fun findAllLinkedVillagerNpcs(): List<Villager>` to `VillagerNpcLinkManager` (using the shared keys from Step 1).
-2. Inject `VillagerNpcLinkManager` into `VillagerNpcAggroService` instead of the raw plugin.
-3. Remove the private `findAllLinkedVillagerNpcs()` and `linkedUserIdKey` from `VillagerNpcAggroService`.
+2. Inject `VillagerNpcLinkManager` into `VillagerNpcSwarmService` instead of the raw plugin.
+3. Inject `VillagerNpcLinkManager` into `VillagerNpcAttackService` instead of the raw plugin.
+4. Remove the private `findAllLinkedVillagerNpcs()` and `linkedUserIdKey` from both service classes.
 
-**Files affected:** `VillagerNpcAggroService.kt`, `VillagerNpcLinkManager.kt`, `LabsWorld.kt` (constructor wiring)
+**Files affected:** `VillagerNpcSwarmService.kt`, `VillagerNpcAttackService.kt`, `VillagerNpcLinkManager.kt`, `LabsWorld.kt` (constructor wiring)
 **Risk:** Low.
 
 ---
@@ -187,7 +189,7 @@ This mirrors the existing `RedeemHandler` / `RedeemHandlers` pattern, which is a
 | ------------------------------------------------------------------ | ------------------------------------------ |
 | `SpawnSubcommand` — calls `plugin.ensureVillagerNpcAtSpawnPoint()` | `npc.spawn` action — calls the same method |
 
-`AggroSubcommand` and `AttackSubcommand` are **removed entirely** — aggro and attack are only available as Twitch channel-point redeems (via `npc.swarm_player` / `npc.attack_player` actions), not as `!lw` subcommands.
+`SwarmSubcommand` and `AttackSubcommand` are **removed entirely** — swarm and attack are only available as Twitch channel-point redeems (via `npc.swarm_player` / `npc.attack_player` actions), not as `!lw` subcommands.
 
 For the remaining `SpawnSubcommand`, the code path duplicates the `npc.spawn` action. Both end up calling the same `LabsWorld` method, but each has its own parameter parsing, error handling, and reply formatting.
 
@@ -195,7 +197,7 @@ For the remaining `SpawnSubcommand`, the code path duplicates the `npc.spawn` ac
 
 **Fix:**
 
-1. **Delete** `AggroSubcommand.kt` and `AttackSubcommand.kt`. Remove them from `LwSubcommands.all`.
+1. **Delete** `SwarmSubcommand.kt` and `AttackSubcommand.kt`. Remove them from `LwSubcommands.all`.
 2. After Step 8 (action handler registry), each action has a clean `ActionHandler.handle(context, invocation, params)` entry point.
 3. Refactor `SpawnSubcommand` so it:
     - Parses its `!lw` arguments into an `ActionConfig` params map.
@@ -204,9 +206,9 @@ For the remaining `SpawnSubcommand`, the code path duplicates the `npc.spawn` ac
 4. Any future chat command that maps 1:1 to an existing action follows the same pattern — the subcommand becomes a thin "argument parser → action caller → reply formatter".
 5. `DuelSubcommand` stays as-is (duels have no action equivalent and are a distinct game mode, not a reusable action).
 
-**Result:** One place for spawn logic. Aggro/attack logic lives only in the action/redeem system — no duplicate code paths.
+**Result:** One place for spawn logic. Swarm/attack logic lives only in the action/redeem system — no duplicate code paths.
 
-**Files affected:** `SpawnSubcommand.kt`, `AggroSubcommand.kt` (delete), `AttackSubcommand.kt` (delete), `LwSubcommands.kt`, action handlers from Step 8
+**Files affected:** `SpawnSubcommand.kt`, `SwarmSubcommand.kt` (delete), `AttackSubcommand.kt` (delete), `LwSubcommands.kt`, action handlers from Step 8
 **Risk:** Low — the underlying `LabsWorld` methods don't change; only the call chain is shortened.
 
 ---
@@ -288,7 +290,7 @@ data class TwitchContext(
 ```
 
 **Fix — option B (if testability matters later):**
-Define a `LabsWorldApi` interface with the methods that commands/actions/redeems need (`pickVillagerNpcSpawnPointSpawnLocation`, `ensureVillagerNpcAtSpawnPoint`, `startAggroAllVillagerNpcs`, etc.), implement it in `LabsWorld`, and pass the interface.
+Define a `LabsWorldApi` interface with the methods that commands/actions/redeems need (`pickVillagerNpcSpawnPointSpawnLocation`, `ensureVillagerNpcAtSpawnPoint`, `startSwarmAllVillagerNpcs`, etc.), implement it in `LabsWorld`, and pass the interface.
 
 **Files affected:** context classes, all command implementations, all action/redeem handlers
 **Risk:** Medium — many call sites, but straightforward.
@@ -400,7 +402,8 @@ nl.jeroenlabs.labsWorld/
 │   ├── VillagerNpcKeys.kt                      # All NPC NamespacedKeys + PDC helpers
 │   ├── VillagerNpcManager.kt                   # NPC creation (deduplicated)
 │   ├── VillagerNpcLinkManager.kt               # Link tracking + findAllLinkedVillagerNpcs
-│   ├── VillagerNpcAggroService.kt              # Aggro/attack (delegates to VillagerNpcLinkManager)
+│   ├── VillagerNpcSwarmService.kt              # Swarm NPCs on player (delegates to VillagerNpcLinkManager)
+│   ├── VillagerNpcAttackService.kt             # Single NPC attacks player (delegates to VillagerNpcLinkManager)
 │   ├── VillagerNpcDuelService.kt               # Duel game loop (extracted from LabsWorld)
 │   ├── VillagerNpcSpawnPointManager.kt         # Spawn-point items/blocks + pickSpawnLocation
 │   ├── VillagerNpcSpawnPointListener.kt        # (existing)
@@ -462,3 +465,142 @@ nl.jeroenlabs.labsWorld/
 | Context/invocation classes       | 3               | 1 (`TwitchContext`)   |
 | Max method length                | ~140 (duel)     | ~40                   |
 | Files with `plugin as LabsWorld` | 6               | 0                     |
+
+---
+
+## Unit Testing Plan (New)
+
+### Current State (as of February 7, 2026)
+
+- No `src/test/kotlin` source set exists.
+- `build.gradle.kts` has no test dependencies (`junit`, `mockk`, etc.).
+- No `tasks.test { useJUnitPlatform() }` configuration is present.
+- Most logic is in service classes with Bukkit/Twitch dependencies; some utility code is already pure and testable.
+
+### Testing Strategy
+
+Start with deterministic unit tests for pure utility/parsing code, then move to dispatcher/service tests with mocks, and finally add Bukkit-backed tests for world/entity behavior.
+
+### Phase T0 - Test Framework Bootstrap
+
+1. Add baseline test stack in `build.gradle.kts`:
+   - `testImplementation(kotlin("test"))`
+   - `testImplementation("org.junit.jupiter:junit-jupiter:<version>")`
+   - `testImplementation("io.mockk:mockk:<version>")`
+2. Enable JUnit 5:
+   - `tasks.test { useJUnitPlatform() }`
+3. Create initial structure:
+   - `src/test/kotlin/nl/jeroenlabs/labsWorld/...`
+4. Add a smoke test (`CoercionsTest`) and verify `./gradlew test`.
+
+**Acceptance criteria**
+- `./gradlew test` runs locally and exits successfully.
+- One passing test class is committed.
+
+### Phase T1 - Fast, Pure Unit Tests (Highest ROI)
+
+Target files:
+
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/util/Coercions.kt`
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/ActionUtils.kt` (pure parse helpers only)
+
+Test cases:
+
+- Numeric/string coercion defaults and edge cases.
+- Boolean coercion for `"true"/"false"/"yes"/"no"/"1"/"0"`.
+- `anyToStringList` for CSV and mixed list input.
+- `parseFireworkType`, `parseEntityType`, `parseItemStacks`, `pickDefaultWorld`.
+
+**Acceptance criteria**
+- Core coercion + parse behavior covered with deterministic tests.
+- No Bukkit server boot required for this phase.
+
+### Phase T2 - Config Parsing and Binding Tests
+
+Target file:
+
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/TwitchConfigManager.kt`
+
+Focus:
+
+- `getRedeemBindings()` validation rules (matcher required, handler/actions required).
+- `getCommandBindings()` parsing of name, permission, run-on-main-thread, action list.
+- `hasRequiredConfig()` behavior with env-var presence/absence.
+
+Notes:
+
+- Use temporary test data folders.
+- Prefer small fixture YAML files under `src/test/resources`.
+
+**Acceptance criteria**
+- Valid and invalid config shapes are both asserted.
+- Reload version increment behavior is tested.
+
+### Phase T3 - Dispatcher and Authorization Unit Tests
+
+Target files:
+
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/TwitchAuth.kt`
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/CommandDispatcher.kt`
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/redeems/RedeemDispatcher.kt`
+
+Focus:
+
+- Permission matrix for `EVERYONE`, `MODERATOR`, `VIP`, `SUBSCRIBER`, `BROADCASTER`.
+- Command dispatch path: command found/not found, unauthorized reply, init-once behavior.
+- Redeem matching path: unmatched, missing handler, action execution path.
+
+**Acceptance criteria**
+- Permission behavior is codified with table-style tests.
+- Dispatcher branching logic is covered without requiring a full Minecraft world.
+
+### Phase T4 - Bukkit-Backed Tests (Mock Server)
+
+Target files:
+
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcLinkManager.kt`
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcSpawnPointManager.kt`
+- `src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcDuelService.kt` (limited scenarios)
+
+Focus:
+
+- NPC linking persistence behavior (`spawned` vs `teleported` paths).
+- Spawn point reconciliation and selection rules.
+- Duel precondition failures (same user, missing spawn points) and single-duel guard behavior.
+
+Notes:
+
+- Run a compatibility spike first to validate the chosen mock Bukkit framework against Paper API usage.
+- Keep time/scheduler assertions narrow and deterministic.
+
+**Acceptance criteria**
+- At least one end-to-end NPC lifecycle test passes in a mocked server environment.
+
+### Phase T5 - CI and Quality Gates
+
+1. Add CI job running `./gradlew test`.
+2. Enforce tests on PRs before merge.
+3. Track coverage trends (start informational, no hard threshold initially).
+
+**Acceptance criteria**
+- Failing tests block merges.
+- Coverage report is visible in CI artifacts or summary.
+
+### Initial Test Backlog (Suggested Order)
+
+1. `CoercionsTest`
+2. `ActionUtilsParsingTest`
+3. `TwitchConfigManagerBindingsTest`
+4. `TwitchAuthTest`
+5. `CommandDispatcherTest`
+6. `RedeemDispatcherTest`
+7. `VillagerNpcLinkManagerTest` (mock server)
+
+### Risks and Mitigations
+
+- Static Bukkit access (`Bukkit.getServer()`) complicates isolation.
+  - Mitigation: test pure helpers first; introduce thin wrappers/facades where needed.
+- Randomness in game logic (`Random`) can make tests flaky.
+  - Mitigation: isolate random decisions behind injectable providers when adding duel tests.
+- File/env coupling in config manager.
+  - Mitigation: fixture-based tests with temp dirs and controlled env assumptions.
