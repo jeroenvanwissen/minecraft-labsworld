@@ -1403,7 +1403,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/
 | Field            | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | `T5`                             |
-| **Status**       | `[ ]`                            |
+| **Status**       | `[x]`                            |
 | **Dependencies** | `T3`, `T4`                       |
 | **Branch**       | `test/t5-dispatchers`            |
 
@@ -1426,10 +1426,10 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/redeems/
 
 **Acceptance Criteria:**
 
-- [ ] `CommandDispatcherTest` exists
-- [ ] `RedeemDispatcherTest` exists
-- [ ] Key dispatch branches are asserted
-- [ ] `./gradlew test` passes
+- [x] `CommandDispatcherTest` exists
+- [x] `RedeemDispatcherTest` exists
+- [x] Key dispatch branches are asserted
+- [x] `./gradlew test` passes
 
 **Commands:**
 
