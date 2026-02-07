@@ -20,7 +20,7 @@ class CommandDispatcher(
     private val twitchClient: TwitchClient,
     private val twitchConfigManager: TwitchConfigManager,
 ) {
-    private val commands = ConcurrentHashMap<String, Command<*>>()
+    private val commands = ConcurrentHashMap<String, Command>()
     private val initializedCommands = ConcurrentHashMap.newKeySet<String>()
     private val configCommandNames = ConcurrentHashMap.newKeySet<String>()
     private var configVersionSeen: Long = -1
@@ -29,7 +29,7 @@ class CommandDispatcher(
         CommandContext(plugin, twitchClient, twitchConfigManager)
     }
 
-    fun register(command: Command<*>) {
+    fun register(command: Command) {
         commands[command.name.lowercase()] = command
     }
 

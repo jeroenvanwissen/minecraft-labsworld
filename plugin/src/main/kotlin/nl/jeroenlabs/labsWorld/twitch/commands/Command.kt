@@ -25,11 +25,10 @@ data class CommandContext(
     val twitchConfigManager: TwitchConfigManager,
 )
 
-interface Command<T : Any> {
+interface Command {
     val name: String
     val permission: Permission
     val type: CommandType
-    var storage: T
     val twitchClient: TwitchClient
 
     /**
