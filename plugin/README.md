@@ -1,45 +1,115 @@
-# Minecraft Twitch City
+# LabsWorld Plugin
 
-This is a Minecraft mod that allows Twitch viewers to spawn NPC's in the game through chat commands.
-It will be used on my Twitch stream to let viewers interact with my Minecraft world.
-This Minecraft world will have a city with a big wall around it to keep the NPC's contained.
-The NPC Spawn point will be in the middle of the city.
+Minecraft plugin that integrates with Twitch to allow viewers to interact with the game through chat commands and channel-point redemptions.
 
-We will be building the Mod and the Minecraft world live on my Twitch stream.
+## Overview
 
-## Phase 0
+LabsWorld enables Twitch viewers to spawn and control NPC villagers in a Minecraft world. Viewers use chat commands and channel point redeems to interact with their NPCs and participate in various game modes.
 
-Clean up the mod code from previous experiments, make sure it compiles with latest dep versions.
+## Architecture
 
-## Phase 1
+The plugin follows a clean, modular architecture with single-responsibility classes and clear dependency injection:
 
-To start we will need to setup a basic Minecraft server with all required mods.
-We need to build the basic mod that connects to Twitch and can handle channel point redemptions.
-Implement simple NPC spawning.
-We will build a simple Minecraft world with a city and a wall around it, with a spawn point in the middle.
-We will need a custom block item that we can place in the world to mark the NPC spawn point.
-## Phase 2
+- **Entry Point:** Slim plugin class handles wiring only
+- **Registry Pattern:** Extensible action and handler systems
+- **Service Layer:** Dedicated services for NPC management, combat, and interactions
+- **Zero Duplication:** All duplicate code eliminated
+- **No Runtime Casts:** Type-safe throughout
 
-Implement some basic commands for the NPC's, like follow me, attack me, etc. ( linked to Twitch chat commands )
+## Package Structure
 
-## Phase 3
+```
+nl.jeroenlabs.labsWorld/
+├── LabsWorld.kt                        # Plugin entry: wiring only
+├── util/
+│   ├── Coercions.kt                    # Type coercion helpers
+│   ├── PlayerUtils.kt                  # Player selection utilities
+│   └── WorldStateUtils.kt              # Weather/world state utilities
+├── npc/
+│   ├── VillagerNpcKeys.kt              # All NPC NamespacedKeys + PDC helpers
+│   ├── VillagerNpcManager.kt           # NPC creation
+│   ├── VillagerNpcLinkManager.kt       # Link tracking + queries
+│   ├── VillagerNpcSwarmService.kt      # Swarm NPCs on player
+│   ├── VillagerNpcAttackService.kt     # Single NPC attacks player
+│   ├── VillagerNpcDuelService.kt       # Duel game loop
+│   ├── VillagerNpcSpawnPointManager.kt # Spawn-point management
+│   ├── VillagerNpcSpawnPointListener.kt# Spawn-point events
+│   └── ChatBubbleService.kt            # NPC chat-bubble display
+├── commands/
+│   ├── LabsWorldCommand.kt             # In-game commands
+│   └── LabsWorldPaperCommand.kt        # Paper bridge
+└── twitch/
+    ├── TwitchContext.kt                # Unified context
+    ├── TwitchAuth.kt                   # Permission checking
+    ├── TwitchConfigManager.kt          # Config loading/validation
+    ├── TwitchClientManager.kt          # Twitch4J client lifecycle
+    ├── TwitchEventHandler.kt           # EventSub routing
+    ├── commands/
+    │   ├── Command.kt                  # Interface (clean, no generics)
+    │   ├── CommandDispatcher.kt        # Command routing
+    │   ├── CommandInvocation.kt        # Command context
+    │   ├── ConfigCommand.kt            # Config-driven commands
+    │   ├── LwCommand.kt                # !lw subcommand router
+    │   └── lw/
+    │       ├── LwSubcommand.kt         # Subcommand interface
+    │       ├── LwSubcommands.kt        # Subcommand registry
+    │       ├── HelpSubcommand.kt       # Help text
+    │       ├── SpawnSubcommand.kt      # Spawn NPC (delegates to action)
+    │       ├── DuelSubcommand.kt       # Start duel
+    │       └── ReloadSubcommand.kt     # Reload config
+    ├── actions/
+    │   ├── ActionConfig.kt             # Action data classes
+    │   ├── ActionHandler.kt            # Handler interface
+    │   ├── ActionExecutor.kt           # Handler registry
+    │   ├── ActionUtils.kt              # Shared helpers
+    │   └── handlers/
+    │       ├── FireworksActionHandler.kt
+    │       ├── HealActionHandler.kt
+    │       ├── SpawnMobActionHandler.kt
+    │       ├── DropItemsActionHandler.kt
+    │       ├── WeatherActionHandler.kt
+    │       ├── LootChestActionHandler.kt
+    │       ├── VillagerNpcSpawnActionHandler.kt
+    │       ├── VillagerNpcSwarmActionHandler.kt
+    │       └── VillagerNpcAttackActionHandler.kt
+    └── redeems/
+        ├── RedeemDispatcher.kt         # Redeem routing
+        ├── RedeemHandler.kt            # Handler interface
+        ├── RedeemInvocation.kt         # EventSub payload parsing
+        └── handlers/                   # Individual redeem handlers
+```
 
-Implement some sort of game mode where the NPC's do things..... ???
+## Testing
 
-## TODO / BRAIN DUMP
+Comprehensive test suite with CI enforcement:
 
-* Twitch chat redeem to spawn viewer NPC's in Minecraft.
-* NPC's should have viewer's name.
-* A viewer can have only one NPC at a time.
-* Twitch chat commands to interact with their NPC:
-  * !attack - makes the NPC attack <ME>?
-  * !follow - makes the NPC follow me around... / STALK ME!
-  * ... things like that.
+- **Test Framework:** JUnit 5 + MockK
+- **Unit Tests:** Core utilities, config parsing, auth, dispatchers
+- **Bukkit Tests:** Mock server harness with NPC lifecycle tests
+- **CI Integration:** GitHub Actions enforces tests on all pull requests
 
+**Test Suites:**
+- `CoercionsTest` — Value coercion helpers
+- `ActionUtilsParsingTest` — Parsing utilities
+- `TwitchConfigManagerBindingsTest` — Config validation
+- `TwitchAuthTest` — Permission matrix
+- `CommandDispatcherTest` — Command routing
+- `RedeemDispatcherTest` — Redeem matching
+- `VillagerNpcLinkManagerTest` — NPC lifecycle (with mock Bukkit)
 
-* !duel type game where one NPC initiates a duel with another NPC. Needs to accept the duel.
-  * Random hits/miss until one dies. 10 hearts/hit points. Death NPC gets respawned as NONE.
+## Building
 
-* Capture the Flag mode....
+```bash
+cd plugin
+./gradlew build
+```
 
-* ADD DAMAGE TO NPC'S, we should be able to damage them, .. or have the TNT damage them ...
+The compiled plugin JAR will be in `build/libs/`.
+
+## Configuration
+
+Configure Twitch integration and channel point redeems in `config.yml`. See example configuration for details.
+
+## Development
+
+For development workflows and task templates, see [../.agent/README.md](../.agent/README.md)
