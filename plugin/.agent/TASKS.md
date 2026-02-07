@@ -1445,7 +1445,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/redeems/
 | Field            | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | `T6`                              |
-| **Status**       | `[ ]`                             |
+| **Status**       | `[x]`                             |
 | **Dependencies** | `T0`                              |
 | **Branch**       | `test/t6-bukkit-harness-spike`    |
 
