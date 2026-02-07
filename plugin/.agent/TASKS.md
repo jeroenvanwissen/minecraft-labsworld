@@ -893,7 +893,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/
 | Field            | Value                                 |
 | ---------------- | ------------------------------------- |
 | **ID**           | `E2`                                  |
-| **Status**       | `[ ]`                                 |
+| **Status**       | `[x]`                                 |
 | **Dependencies** | `E1`                                  |
 | **Branch**       | `refactor/e2-fireworks-heal-handlers` |
 
