@@ -522,7 +522,7 @@ grep -r "fun pickTargetPlayer" src/main/kotlin --include="*.kt" | wc -l  # Shoul
 | Field            | Value                             |
 | ---------------- | --------------------------------- |
 | **ID**           | `C2`                              |
-| **Status**       | `[ ]`                             |
+| **Status**       | `[x]`                             |
 | **Dependencies** | None                              |
 | **Branch**       | `refactor/c2-weather-consolidate` |
 
