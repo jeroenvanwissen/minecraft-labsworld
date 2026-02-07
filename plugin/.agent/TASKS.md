@@ -1137,7 +1137,7 @@ grep -r "TextDisplay" src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/Co
 | Field            | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | `F2`                            |
-| **Status**       | `[ ]`                           |
+| **Status**       | `[x]`                           |
 | **Dependencies** | None                            |
 | **Branch**       | `refactor/f2-reduce-reflection` |
 
