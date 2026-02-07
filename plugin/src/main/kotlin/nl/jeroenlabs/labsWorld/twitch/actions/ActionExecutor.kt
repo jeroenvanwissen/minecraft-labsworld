@@ -1,26 +1,20 @@
 package nl.jeroenlabs.labsWorld.twitch.actions
 
 import net.kyori.adventure.text.Component
-import org.bukkit.Bukkit
 import org.bukkit.Color
-import org.bukkit.DyeColor
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.World
 import org.bukkit.block.Chest
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.bukkit.util.Vector
 import nl.jeroenlabs.labsWorld.util.anyToBool
 import nl.jeroenlabs.labsWorld.util.anyToDouble
 import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
 import nl.jeroenlabs.labsWorld.util.anyToStringList
-import nl.jeroenlabs.labsWorld.util.PlayerUtils
 import nl.jeroenlabs.labsWorld.util.WorldStateUtils
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import kotlin.math.min
@@ -56,7 +50,7 @@ object ActionExecutor {
 
     private fun runAttackPlayer(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val plugin = context.plugin
-        val target = resolveTargetPlayer(invocation, params) ?: return
+        val target = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val durationSeconds = anyToInt(params["duration_seconds"], 30).coerceAtLeast(1)
         val heartsPerHit = anyToDouble(params["hearts_per_hit"], 2.0).coerceAtLeast(0.1)
 
@@ -75,7 +69,7 @@ object ActionExecutor {
 
     private fun runSwarmNpcsToPlayer(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val plugin = context.plugin
-        val target = resolveTargetPlayer(invocation, params) ?: return
+        val target = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val durationSeconds = anyToInt(params["duration_seconds"], 30).coerceAtLeast(1)
         plugin.startAggroAllNpcs(target, durationSeconds)
             .onSuccess { count ->
@@ -97,7 +91,7 @@ object ActionExecutor {
     )
 
     private fun runLootChest(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = resolveTargetPlayer(invocation, params) ?: return
+        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
 
         val radius = anyToInt(params["radius"], 6).coerceIn(1, 30)
         val tries = anyToInt(params["tries"], 24).coerceIn(1, 200)
@@ -282,18 +276,18 @@ object ActionExecutor {
     }
 
     private fun runFireworks(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = resolveTargetPlayer(invocation, params) ?: return
+        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val count = anyToInt(params["count"], 1).coerceAtLeast(1)
         val power = anyToInt(params["power"], 1).coerceIn(0, 2)
         val shape = anyToString(params["shape"])?.lowercase() ?: "ball"
-        val colors = parseColors(anyToStringList(params["colors"]))
+        val colors = ActionUtils.parseColors(anyToStringList(params["colors"]))
 
         repeat(count) {
-            val location = player.location.clone().add(randomOffset(0.6))
+            val location = player.location.clone().add(ActionUtils.randomOffset(0.6))
             val firework = player.world.spawn(location, Firework::class.java)
             val meta = firework.fireworkMeta
             val effect = FireworkEffect.builder()
-                .with(parseFireworkType(shape))
+                .with(ActionUtils.parseFireworkType(shape))
                 .withColor(colors.ifEmpty { listOf(Color.WHITE) })
                 .build()
             meta.power = power
@@ -303,7 +297,7 @@ object ActionExecutor {
     }
 
     private fun runHeal(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = resolveTargetPlayer(invocation, params) ?: return
+        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val hearts = anyToDouble(params["hearts"], -1.0)
         val healthPoints = if (hearts >= 0) hearts * 2.0 else anyToDouble(params["health"], 4.0)
         if (healthPoints <= 0.0) return
@@ -311,23 +305,23 @@ object ActionExecutor {
     }
 
     private fun runSpawnMob(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = resolveTargetPlayer(invocation, params) ?: return
+        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val mobName = anyToString(params["mob"]) ?: error("Missing mob type")
-        val entityType = parseEntityType(mobName) ?: error("Unknown mob type '$mobName'")
+        val entityType = ActionUtils.parseEntityType(mobName) ?: error("Unknown mob type '$mobName'")
         if (!entityType.isSpawnable || !entityType.isAlive) return
 
         val count = anyToInt(params["count"], 1).coerceAtLeast(1)
         val radius = anyToDouble(params["radius"], 2.0).coerceAtLeast(0.0)
         repeat(count) {
-            val location = player.location.clone().add(randomOffset(radius))
+            val location = player.location.clone().add(ActionUtils.randomOffset(radius))
             player.world.spawnEntity(location, entityType)
         }
     }
 
     private fun runDropItems(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = resolveTargetPlayer(invocation, params) ?: return
+        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val itemsRaw = params["items"]
-        val items = parseItemStacks(itemsRaw)
+        val items = ActionUtils.parseItemStacks(itemsRaw)
         if (items.isEmpty()) error("No items defined")
 
         items.forEach { stack ->
@@ -343,72 +337,12 @@ object ActionExecutor {
     }
 
     private fun runWeather(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = resolveTargetPlayer(invocation, params)
-        val world = player?.world ?: pickDefaultWorld(context.plugin.server.worlds) ?: return
+        val player = ActionUtils.resolveTargetPlayer(invocation, params)
+        val world = player?.world ?: ActionUtils.pickDefaultWorld(context.plugin.server.worlds) ?: return
         val state = anyToString(params["state"])?.lowercase() ?: "clear"
         val durationSeconds = anyToInt(params["duration_seconds"], 60).coerceAtLeast(1)
         val ticks = durationSeconds * 20
 
         WorldStateUtils.setWorldState(world, state, ticks)
     }
-
-    private fun parseFireworkType(shape: String): FireworkEffect.Type =
-        when (shape) {
-            "ball" -> FireworkEffect.Type.BALL
-            "ball_large", "large_ball", "large" -> FireworkEffect.Type.BALL_LARGE
-            "star" -> FireworkEffect.Type.STAR
-            "burst" -> FireworkEffect.Type.BURST
-            "creeper" -> FireworkEffect.Type.CREEPER
-            else -> FireworkEffect.Type.BALL
-        }
-
-    private fun parseColors(raw: List<String>): List<Color> =
-        raw.mapNotNull { name ->
-            runCatching { DyeColor.valueOf(name.trim().uppercase()) }.getOrNull()?.color
-        }
-
-    private fun parseEntityType(name: String): EntityType? {
-        EntityType.fromName(name)?.let { return it }
-        return runCatching { EntityType.valueOf(name.trim().uppercase()) }.getOrNull()
-    }
-
-    private fun parseItemStacks(raw: Any?): List<ItemStack> {
-        if (raw !is List<*>) return emptyList()
-        return raw.mapNotNull { entry ->
-            val map = entry as? Map<*, *> ?: return@mapNotNull null
-            val typeName = anyToString(map["type"]) ?: return@mapNotNull null
-            val material = Material.matchMaterial(typeName) ?: return@mapNotNull null
-            val amount = anyToInt(map["amount"], 1).coerceAtLeast(1)
-            ItemStack(material, amount)
-        }
-    }
-
-    private fun resolveTargetPlayer(invocation: ActionInvocation, params: Map<String, Any?>): Player? {
-        val targetRaw = anyToString(params["target_player"])
-        val allowRandom = anyToBool(params["allow_random"], true) ?: true
-
-        val targetName = when (targetRaw?.lowercase()) {
-            null, "" -> null
-            "redeemer", "invoker", "self", "{user}" -> invocation.userName
-            else -> targetRaw
-        }
-
-        if (!targetName.isNullOrBlank()) {
-            return Bukkit.getPlayerExact(targetName)
-        }
-
-        // Try matching the Twitch user name to an online player.
-        Bukkit.getPlayerExact(invocation.userName)?.let { return it }
-
-        return PlayerUtils.pickTargetPlayer(Bukkit.getServer(), preferred = null, allowRandom = allowRandom)
-    }
-
-    private fun randomOffset(radius: Double): Vector =
-        if (radius <= 0.0) Vector(0.0, 0.0, 0.0) else {
-            val dx = (Random.nextDouble() * 2.0 - 1.0) * radius
-            val dz = (Random.nextDouble() * 2.0 - 1.0) * radius
-            Vector(dx, 0.0, dz)
-        }
-
-    private fun pickDefaultWorld(worlds: List<World>): World? = worlds.firstOrNull()
 }

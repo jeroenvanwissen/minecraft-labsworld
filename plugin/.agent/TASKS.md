@@ -840,7 +840,7 @@ grep -r "as LabsWorld\|as? LabsWorld\|pluginAsLabsWorld" src/main/kotlin --inclu
 | Field            | Value                                  |
 | ---------------- | -------------------------------------- |
 | **ID**           | `E1`                                   |
-| **Status**       | `[ ]`                                  |
+| **Status**       | `[x]`                                  |
 | **Dependencies** | `D1`                                   |
 | **Branch**       | `refactor/e1-action-handler-interface` |
 
