@@ -790,7 +790,7 @@ grep -r "runTask\|Runnable" src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/comma
 | Field            | Value                      |
 | ---------------- | -------------------------- |
 | **ID**           | `D4`                       |
-| **Status**       | `[ ]`                      |
+| **Status**       | `[x]`                      |
 | **Dependencies** | `D1`                       |
 | **Branch**       | `refactor/d4-remove-casts` |
 

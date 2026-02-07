@@ -9,16 +9,15 @@ import nl.jeroenlabs.labsWorld.twitch.commands.CommandDispatcher
 import nl.jeroenlabs.labsWorld.twitch.commands.LwCommand
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemDispatcher
 import nl.jeroenlabs.labsWorld.twitch.redeems.handlers.RedeemHandlers
-import org.bukkit.plugin.java.JavaPlugin
 
 class TwitchEventHandler(
-    private val plugin: JavaPlugin,
+    private val plugin: LabsWorld,
     private val twitchClient: TwitchClient,
     private val twitchConfigManager: TwitchConfigManager,
     private val twitchClientManager: TwitchClientManager? = null,
 ) {
     private val context = TwitchContext(
-        plugin = plugin as LabsWorld,
+        plugin = plugin,
         twitchClient = twitchClient,
         twitchConfigManager = twitchConfigManager,
     )
