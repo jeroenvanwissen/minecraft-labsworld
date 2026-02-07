@@ -29,9 +29,18 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("com.github.twitch4j:twitch4j:1.25.0")
     implementation("com.github.philippheuer.credentialmanager:credentialmanager:0.3.1")
+
+    // Test dependencies
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+    testImplementation("io.mockk:mockk:1.13.14")
 }
 
 tasks {
+    test {
+        useJUnitPlatform()
+    }
+
     runServer {
         // Configure the Minecraft version for our task.
         // This is the only required configuration besides applying the plugin.
