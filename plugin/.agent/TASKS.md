@@ -1200,7 +1200,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/
 | Field            | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | `T0`                           |
-| **Status**       | `[ ]`                          |
+| **Status**       | `[x]`                          |
 | **Dependencies** | None                           |
 | **Branch**       | `test/t0-framework-bootstrap`  |
 
@@ -1243,7 +1243,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/         # CREATE (base test package)
 | Field            | Value                    |
 | ---------------- | ------------------------ |
 | **ID**           | `T1`                     |
-| **Status**       | `[ ]`                    |
+| **Status**       | `[x]`                    |
 | **Dependencies** | `T0`                     |
 | **Branch**       | `test/t1-coercions`      |
 
@@ -1282,7 +1282,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/util/
 | Field            | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | `T2`                         |
-| **Status**       | `[ ]`                        |
+| **Status**       | `[x]`                        |
 | **Dependencies** | `T0`                         |
 | **Branch**       | `test/t2-action-utils`       |
 
