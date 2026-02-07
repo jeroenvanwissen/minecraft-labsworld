@@ -938,7 +938,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/
 | Field            | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | `E3`                             |
-| **Status**       | `[ ]`                            |
+| **Status**       | `[x]`                            |
 | **Dependencies** | `E2`                             |
 | **Branch**       | `refactor/e3-remaining-handlers` |
 
