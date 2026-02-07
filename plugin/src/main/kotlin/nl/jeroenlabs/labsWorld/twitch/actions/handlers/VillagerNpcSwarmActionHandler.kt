@@ -13,7 +13,7 @@ class VillagerNpcSwarmActionHandler : ActionHandler {
         val plugin = context.plugin
         val target = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
         val durationSeconds = anyToInt(params["duration_seconds"], 30).coerceAtLeast(1)
-        plugin.startAggroAllNpcs(target, durationSeconds)
+        plugin.startSwarmAllNpcs(target, durationSeconds)
             .onSuccess { count ->
                 context.twitchClient.chat.sendMessage(
                     invocation.channelName,
