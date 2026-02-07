@@ -20,6 +20,7 @@ import nl.jeroenlabs.labsWorld.util.anyToDouble
 import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
 import nl.jeroenlabs.labsWorld.util.anyToStringList
+import nl.jeroenlabs.labsWorld.util.PlayerUtils
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -415,9 +416,7 @@ object ActionExecutor {
         // Try matching the Twitch user name to an online player.
         Bukkit.getPlayerExact(invocation.userName)?.let { return it }
 
-        val online = Bukkit.getOnlinePlayers().toList()
-        if (online.isEmpty() || !allowRandom) return null
-        return online[Random.nextInt(online.size)]
+        return PlayerUtils.pickTargetPlayer(Bukkit.getServer(), preferred = null, allowRandom = allowRandom)
     }
 
     private fun randomOffset(radius: Double): Vector =
