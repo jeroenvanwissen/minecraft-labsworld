@@ -9,6 +9,7 @@ interface LwSubcommand {
     val name: String
     val aliases: Set<String> get() = emptySet()
     val permission: Permission get() = Permission.EVERYONE
+    val runOnMainThread: Boolean get() = true
     fun handle(ctx: TwitchContext, inv: CommandInvocation)
 }
 

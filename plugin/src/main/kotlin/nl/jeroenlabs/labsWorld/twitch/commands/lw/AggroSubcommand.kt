@@ -12,19 +12,17 @@ object AggroSubcommand : LwSubcommand {
     override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
         val plugin = ctx.labsWorld()
 
-        plugin.server.scheduler.runTask(plugin, Runnable {
-            val target = PlayerUtils.pickTargetPlayer(plugin.server, inv.args.getOrNull(1), allowRandom = false)
-            if (target == null) {
-                inv.replyMention("Usage: !lw aggro <minecraftPlayer>")
-                return@Runnable
-            }
+        val target = PlayerUtils.pickTargetPlayer(plugin.server, inv.args.getOrNull(1), allowRandom = false)
+        if (target == null) {
+            inv.replyMention("Usage: !lw aggro <minecraftPlayer>")
+            return
+        }
 
-            plugin.startAggroAllNpcs(target, 30)
-                .onSuccess { count ->
-                    if (count <= 0) inv.replyMention("No Twitch NPCs found.")
-                    else inv.replyMention("Sent $count NPC(s) after ${target.name} for 30s.")
-                }
-                .onFailure { inv.replyMention("Aggro failed: ${it.message}") }
-        })
+        plugin.startAggroAllNpcs(target, 30)
+            .onSuccess { count ->
+                if (count <= 0) inv.replyMention("No Twitch NPCs found.")
+                else inv.replyMention("Sent $count NPC(s) after ${target.name} for 30s.")
+            }
+            .onFailure { inv.replyMention("Aggro failed: ${it.message}") }
     }
 }

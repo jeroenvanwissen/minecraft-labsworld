@@ -12,22 +12,20 @@ object AttackSubcommand : LwSubcommand {
     override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
         val plugin = ctx.labsWorld()
 
-        plugin.server.scheduler.runTask(plugin, Runnable {
-            val target = PlayerUtils.pickTargetPlayer(plugin.server, inv.args.getOrNull(1), allowRandom = false)
-            if (target == null) {
-                inv.replyMention("Usage: !lw attack <player> [seconds] [hearts]")
-                return@Runnable
+        val target = PlayerUtils.pickTargetPlayer(plugin.server, inv.args.getOrNull(1), allowRandom = false)
+        if (target == null) {
+            inv.replyMention("Usage: !lw attack <player> [seconds] [hearts]")
+            return
+        }
+
+        val seconds = parseDuration(inv.args.getOrNull(2))
+        val hearts = parseDamage(inv.args.getOrNull(3))
+
+        plugin.startAttackAllNpcs(target, seconds, hearts)
+            .onSuccess { count ->
+                if (count <= 0) inv.replyMention("No Twitch NPCs found.")
+                else inv.replyMention("$count NPC(s) attacking ${target.name} for ${seconds}s (${hearts}❤/hit).")
             }
-
-            val seconds = parseDuration(inv.args.getOrNull(2))
-            val hearts = parseDamage(inv.args.getOrNull(3))
-
-            plugin.startAttackAllNpcs(target, seconds, hearts)
-                .onSuccess { count ->
-                    if (count <= 0) inv.replyMention("No Twitch NPCs found.")
-                    else inv.replyMention("$count NPC(s) attacking ${target.name} for ${seconds}s (${hearts}❤/hit).")
-                }
-                .onFailure { inv.replyMention("Attack failed: ${it.message}") }
-        })
+            .onFailure { inv.replyMention("Attack failed: ${it.message}") }
     }
 }
