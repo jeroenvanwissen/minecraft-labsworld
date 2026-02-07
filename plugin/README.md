@@ -54,7 +54,6 @@ nl.jeroenlabs.labsWorld/
     │       ├── LwSubcommand.kt         # Subcommand interface
     │       ├── LwSubcommands.kt        # Subcommand registry
     │       ├── HelpSubcommand.kt       # Help text
-    │       ├── SpawnSubcommand.kt      # Spawn NPC (delegates to action)
     │       ├── DuelSubcommand.kt       # Start duel
     │       └── ReloadSubcommand.kt     # Reload config
     ├── actions/

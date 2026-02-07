@@ -4,7 +4,6 @@ package nl.jeroenlabs.labsWorld.twitch.commands.lw
 object LwSubcommands {
     val all: List<LwSubcommand> = listOf(
         HelpSubcommand,
-        SpawnSubcommand,
         DuelSubcommand,
         ReloadSubcommand,
     )
