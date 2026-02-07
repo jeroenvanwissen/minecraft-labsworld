@@ -3,6 +3,7 @@ package nl.jeroenlabs.labsWorld.twitch.commands.lw
 import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
+import nl.jeroenlabs.labsWorld.util.PlayerUtils
 
 object AttackSubcommand : LwSubcommand {
     override val name = "attack"
@@ -15,7 +16,7 @@ object AttackSubcommand : LwSubcommand {
         val plugin = ctx.labsWorld() ?: return inv.replyMention("Plugin error")
 
         plugin.server.scheduler.runTask(plugin, Runnable {
-            val target = plugin.pickTargetPlayer(inv.args.getOrNull(1), allowRandom = false)
+            val target = PlayerUtils.pickTargetPlayer(plugin.server, inv.args.getOrNull(1), allowRandom = false)
             if (target == null) {
                 inv.replyMention("Usage: !lw attack <player> [seconds] [hearts]")
                 return@Runnable

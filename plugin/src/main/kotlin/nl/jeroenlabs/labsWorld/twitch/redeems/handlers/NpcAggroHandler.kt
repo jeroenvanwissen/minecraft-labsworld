@@ -3,6 +3,7 @@ package nl.jeroenlabs.labsWorld.twitch.redeems.handlers
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandler
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandlerContext
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemInvocation
+import nl.jeroenlabs.labsWorld.util.PlayerUtils
 import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
 
@@ -15,7 +16,7 @@ object NpcAggroHandler : RedeemHandler {
 
         val seconds = anyToInt(params["seconds"], 30).coerceIn(1, 300)
         val targetName = anyToString(params["target_player"])
-        val target = lw.pickTargetPlayer(targetName, allowRandom = true) ?: error("No online players")
+        val target = PlayerUtils.pickTargetPlayer(lw.server, targetName, allowRandom = true) ?: error("No online players")
 
         lw.startAggroAllNpcs(target, seconds).getOrThrow()
     }

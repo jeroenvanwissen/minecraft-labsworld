@@ -467,7 +467,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/
 | Field            | Value                            |
 | ---------------- | -------------------------------- |
 | **ID**           | `C1`                             |
-| **Status**       | `[ ]`                            |
+| **Status**       | `[x]`                            |
 | **Dependencies** | None                             |
 | **Branch**       | `refactor/c1-pick-target-player` |
 
