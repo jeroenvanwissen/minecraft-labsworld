@@ -1,0 +1,66 @@
+channel_name: "test_channel"
+
+commands:
+  bindings:
+    # Valid command with everyone permission (default)
+    - name: "fireworks"
+      actions:
+        - type: "player.fireworks"
+          params:
+            count: 3
+            power: 1
+
+    # Valid command with broadcaster permission
+    - name: "admin"
+      permission: "broadcaster"
+      run_on_main_thread: true
+      actions:
+        - type: "player.heal"
+          params:
+            hearts: 10
+
+    # Valid command with moderator permission
+    - name: "modcmd"
+      permission: "moderator"
+      actions:
+        - type: "world.weather"
+          params:
+            state: "clear"
+
+    # Valid command with mod alias
+    - name: "modcmd2"
+      permission: "mod"
+      actions:
+        - type: "player.heal"
+
+    # Valid command with vip permission
+    - name: "vipcmd"
+      permission: "vip"
+      actions:
+        - type: "player.fireworks"
+
+    # Valid command with subscriber permission
+    - name: "subcmd"
+      permission: "subscriber"
+      actions:
+        - type: "player.heal"
+
+    # Valid command with sub alias
+    - name: "subcmd2"
+      permission: "sub"
+      actions:
+        - type: "player.heal"
+
+    # Valid command with multiple actions
+    - name: "combo"
+      permission: "everyone"
+      actions:
+        - type: "player.fireworks"
+          params:
+            count: 5
+        - type: "player.heal"
+          params:
+            hearts: 2
+        - type: "world.weather"
+          params:
+            state: "rain"

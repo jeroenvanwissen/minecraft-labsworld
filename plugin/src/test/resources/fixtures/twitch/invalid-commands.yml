@@ -1,0 +1,30 @@
+channel_name: "test_channel"
+
+commands:
+  bindings:
+    # Invalid: missing name
+    - permission: "everyone"
+      actions:
+        - type: "player.fireworks"
+
+    # Invalid: null name
+    - name: null
+      actions:
+        - type: "player.heal"
+
+    # Invalid: empty name
+    - name: ""
+      actions:
+        - type: "player.fireworks"
+
+    # Invalid: has name but missing actions
+    - name: "noactions"
+      permission: "everyone"
+
+    # Invalid: has name but empty actions array
+    - name: "emptyactions"
+      actions: []
+
+    # Invalid: actions is not a list
+    - name: "badactions"
+      actions: "not a list"

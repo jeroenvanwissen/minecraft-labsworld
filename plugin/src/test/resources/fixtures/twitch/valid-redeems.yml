@@ -1,0 +1,45 @@
+channel_name: "test_channel"
+
+redeems:
+  enabled: true
+  log_unmatched: true
+
+  bindings:
+    # Valid binding with reward_id and handler
+    - reward_id: "aaaa-bbbb-cccc-dddd"
+      handler: "npc.spawn"
+      run_on_main_thread: true
+      params:
+        message: "Test message"
+
+    # Valid binding with reward_title and handler
+    - reward_title: "Test Reward"
+      handler: "npc.attack"
+      params:
+        seconds: 30
+        hearts_per_hit: 1.0
+
+    # Valid binding with both reward_id and reward_title (reward_id should take precedence)
+    - reward_id: "1111-2222-3333-4444"
+      reward_title: "Duplicate Reward"
+      handler: "chat.say"
+
+    # Valid binding with actions instead of handler
+    - reward_title: "Action Based"
+      run_on_main_thread: true
+      actions:
+        - type: "player.fireworks"
+          params:
+            count: 3
+            power: 1
+        - type: "world.weather"
+          params:
+            state: "rain"
+
+    # Valid binding with both handler and actions
+    - reward_id: "5555-6666-7777-8888"
+      handler: "npc.spawn"
+      actions:
+        - type: "player.heal"
+          params:
+            hearts: 4
