@@ -5,6 +5,7 @@ import nl.jeroenlabs.labsWorld.twitch.actions.ActionHandler
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionInvocation
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionUtils
 import nl.jeroenlabs.labsWorld.util.anyToDouble
+import org.bukkit.attribute.Attribute
 import kotlin.math.min
 
 class HealActionHandler : ActionHandler {
@@ -15,6 +16,7 @@ class HealActionHandler : ActionHandler {
         val hearts = anyToDouble(params["hearts"], -1.0)
         val healthPoints = if (hearts >= 0) hearts * 2.0 else anyToDouble(params["health"], 4.0)
         if (healthPoints <= 0.0) return
-        player.health = min(player.maxHealth, player.health + healthPoints)
+        val maxHealth = player.getAttribute(Attribute.MAX_HEALTH)?.value ?: 20.0
+        player.health = min(maxHealth, player.health + healthPoints)
     }
 }

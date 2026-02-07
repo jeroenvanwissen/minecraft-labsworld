@@ -1,5 +1,6 @@
 package nl.jeroenlabs.labsWorld.npc
 
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.configuration.file.YamlConfiguration
@@ -45,7 +46,7 @@ class VillagerNpcLinkManager(
             existing.teleport(spawnLocation)
             persist(cfg, userId, userName, existing.uniqueId, spawnLocation)
             save(cfg)
-            return EnsureResult(spawned = false, npcUuid = existing.uniqueId, npcName = existing.customName)
+            return EnsureResult(spawned = false, npcUuid = existing.uniqueId, npcName = existing.plainName())
         }
 
         val path = "users.$userId"
@@ -60,7 +61,7 @@ class VillagerNpcLinkManager(
                 villager.teleport(spawnLocation)
                 persist(cfg, userId, userName, villager.uniqueId, spawnLocation)
                 save(cfg)
-                return EnsureResult(spawned = false, npcUuid = villager.uniqueId, npcName = villager.customName)
+                return EnsureResult(spawned = false, npcUuid = villager.uniqueId, npcName = villager.plainName())
             }
 
             // If it's not loaded, try to load the chunk where we last stored it.
@@ -72,7 +73,7 @@ class VillagerNpcLinkManager(
                     found.teleport(spawnLocation)
                     persist(cfg, userId, userName, found.uniqueId, spawnLocation)
                     save(cfg)
-                    return EnsureResult(spawned = false, npcUuid = found.uniqueId, npcName = found.customName)
+                    return EnsureResult(spawned = false, npcUuid = found.uniqueId, npcName = found.plainName())
                 }
             }
 
@@ -84,7 +85,7 @@ class VillagerNpcLinkManager(
         val npc = npcManager.createLinkedNpc(spawnLocation, userId, userName, profession = Villager.Profession.NONE)
         persist(cfg, userId, userName, npc.uniqueId, spawnLocation)
         save(cfg)
-        return EnsureResult(spawned = true, npcUuid = npc.uniqueId, npcName = npc.customName)
+        return EnsureResult(spawned = true, npcUuid = npc.uniqueId, npcName = npc.plainName())
     }
 
     private fun applyNpcRuntimeSettings(
@@ -228,6 +229,9 @@ class VillagerNpcLinkManager(
     private fun save(cfg: YamlConfiguration) {
         cfg.save(storageFile)
     }
+
+    private fun Entity.plainName(): String? =
+        customName()?.let { PlainTextComponentSerializer.plainText().serialize(it) }
 
     /**
      * Ensures the given linked user has an NPC at the specified spawn location.

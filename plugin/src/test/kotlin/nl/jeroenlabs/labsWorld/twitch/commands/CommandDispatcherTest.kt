@@ -6,6 +6,7 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.common.events.domain.EventChannel
 import com.github.twitch4j.common.events.domain.EventUser
 import io.mockk.*
+import java.util.Optional
 import nl.jeroenlabs.labsWorld.LabsWorld
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
@@ -101,7 +102,10 @@ class CommandDispatcherTest {
         every { user.name } returns userName
         every { channel.id } returns channelId
         every { channel.name } returns channelName
-        every { event.messageEvent.tags } returns tags
+        every { event.messageEvent.getTagValue(any()) } answers {
+            val key = firstArg<String>()
+            Optional.ofNullable(tags[key])
+        }
 
         return event
     }

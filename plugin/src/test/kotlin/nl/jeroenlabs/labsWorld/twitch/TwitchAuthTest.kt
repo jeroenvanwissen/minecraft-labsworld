@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import java.util.Optional
 
 /**
  * Permission matrix unit tests for TwitchAuth.
@@ -40,8 +41,11 @@ class TwitchAuthTest {
         every { event.user } returns user
         every { event.channel } returns channel
 
-        // Mock messageEvent.tags property access
-        every { event.messageEvent.tags } returns tags
+        // Mock messageEvent.getTagValue() for each provided tag
+        every { event.messageEvent.getTagValue(any()) } answers {
+            val key = firstArg<String>()
+            Optional.ofNullable(tags[key])
+        }
 
         return event
     }
@@ -164,15 +168,15 @@ class TwitchAuthTest {
         }
     }
 
-    // ==================== IRC Tags Extraction Tests ====================
+    // ==================== Tag Value Extraction Tests ====================
 
     @Nested
-    @DisplayName("IRC Tags Extraction")
-    inner class IrcTagsExtractionTests {
+    @DisplayName("Tag Value Extraction")
+    inner class TagValueExtractionTests {
 
         @Test
-        @DisplayName("should extract IRC tags from event")
-        fun extractTags() {
+        @DisplayName("should extract individual tag values from event")
+        fun extractTagValues() {
             val event = createMockEvent(
                 tags = mapOf(
                     "mod" to "1",
@@ -180,34 +184,26 @@ class TwitchAuthTest {
                     "color" to "#FF0000"
                 )
             )
-            val tags = TwitchAuth.getIrcTags(event)
-            assertEquals("1", tags["mod"])
-            assertEquals("1", tags["subscriber"])
-            assertEquals("#FF0000", tags["color"])
+            assertEquals("1", TwitchAuth.getTagValue(event, "mod"))
+            assertEquals("1", TwitchAuth.getTagValue(event, "subscriber"))
+            assertEquals("#FF0000", TwitchAuth.getTagValue(event, "color"))
         }
 
         @Test
-        @DisplayName("should return empty map when tags are null")
-        fun nullTags() {
+        @DisplayName("should return null when tag access throws")
+        fun tagAccessThrows() {
             val event = mockk<ChannelMessageEvent>(relaxed = true)
-            every { event.messageEvent.tags } throws Exception("No tags")
+            every { event.messageEvent.getTagValue(any()) } throws Exception("No tags")
 
-            val tags = TwitchAuth.getIrcTags(event)
-            assertTrue(tags.isEmpty())
+            assertNull(TwitchAuth.getTagValue(event, "mod"))
         }
 
         @Test
-        @DisplayName("should handle null tag values")
-        fun nullTagValues() {
-            val event = mockk<ChannelMessageEvent>(relaxed = true)
-            every { event.messageEvent.tags } returns mapOf(
-                "key1" to "value1",
-                "key2" to null
-            )
-
-            val tags = TwitchAuth.getIrcTags(event)
-            assertEquals("value1", tags["key1"])
-            assertEquals("", tags["key2"])
+        @DisplayName("should return null for missing tags")
+        fun missingTagValues() {
+            val event = createMockEvent(tags = mapOf("key1" to "value1"))
+            assertEquals("value1", TwitchAuth.getTagValue(event, "key1"))
+            assertNull(TwitchAuth.getTagValue(event, "nonexistent"))
         }
     }
 

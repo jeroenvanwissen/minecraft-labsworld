@@ -1,6 +1,7 @@
 package nl.jeroenlabs.labsWorld.npc
 
 import org.bukkit.Location
+import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Villager
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
@@ -76,8 +77,8 @@ class VillagerNpcDuelService(
         // Make sure they can actually take damage during the duel.
         npcA.isInvulnerable = false
         npcB.isInvulnerable = false
-        npcA.health = npcA.maxHealth
-        npcB.health = npcB.maxHealth
+        npcA.health = npcA.getAttribute(Attribute.MAX_HEALTH)!!.value
+        npcB.health = npcB.getAttribute(Attribute.MAX_HEALTH)!!.value
 
         val task = plugin.server.scheduler.runTaskTimer(
             plugin,
