@@ -8,20 +8,17 @@ import nl.jeroenlabs.labsWorld.twitch.commands.Permission
  */
 object TwitchAuth {
     /**
-     * Extracts IRC tags from a Twitch4J chat event via the direct API.
+     * Reads a single IRC tag value from a Twitch4J chat event.
      */
-    fun getIrcTags(event: ChannelMessageEvent): Map<String, String> {
-        val tags = runCatching { event.messageEvent.tags }.getOrNull() ?: return emptyMap()
-        return tags.mapValues { (_, v) -> v ?: "" }
-    }
+    fun getTagValue(event: ChannelMessageEvent, key: String): String? =
+        runCatching { event.messageEvent.getTagValue(key).orElse(null) }.getOrNull()
 
     fun isBroadcaster(event: ChannelMessageEvent): Boolean =
         runCatching { event.user.id == event.channel.id }.getOrDefault(false)
 
-    fun isModerator(event: ChannelMessageEvent): Boolean {
-        val tags = getIrcTags(event)
-        return tags["mod"] == "1" || (tags["badges"]?.contains("moderator/") == true)
-    }
+    fun isModerator(event: ChannelMessageEvent): Boolean =
+        getTagValue(event, "mod") == "1" ||
+            (getTagValue(event, "badges")?.contains("moderator/") == true)
 
     fun isBroadcasterOrModerator(event: ChannelMessageEvent): Boolean =
         isBroadcaster(event) || isModerator(event)
@@ -34,10 +31,10 @@ object TwitchAuth {
 
         if (isBroadcaster(event)) return true
 
-        val tags = getIrcTags(event)
-        val isMod = tags["mod"] == "1" || (tags["badges"]?.contains("moderator/") == true)
-        val isVip = tags["vip"] == "1" || (tags["badges"]?.contains("vip/") == true)
-        val isSubscriber = tags["subscriber"] == "1" || (tags["badges"]?.contains("subscriber/") == true)
+        val badges = getTagValue(event, "badges")
+        val isMod = getTagValue(event, "mod") == "1" || (badges?.contains("moderator/") == true)
+        val isVip = getTagValue(event, "vip") == "1" || (badges?.contains("vip/") == true)
+        val isSubscriber = getTagValue(event, "subscriber") == "1" || (badges?.contains("subscriber/") == true)
 
         return when (required) {
             Permission.BROADCASTER -> false

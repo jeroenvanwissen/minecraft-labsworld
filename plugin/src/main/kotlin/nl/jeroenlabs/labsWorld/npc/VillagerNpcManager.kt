@@ -1,5 +1,6 @@
 package nl.jeroenlabs.labsWorld.npc
 
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Location
 import org.bukkit.entity.EntityType
@@ -40,7 +41,7 @@ class VillagerNpcManager(
         // Set display name if provided
         if (!name.isNullOrEmpty()) {
             val uniqueName = generateUniqueName(name)
-            npc.customName = uniqueName
+            npc.customName(Component.text(uniqueName))
             npc.isCustomNameVisible = true
         }
 
