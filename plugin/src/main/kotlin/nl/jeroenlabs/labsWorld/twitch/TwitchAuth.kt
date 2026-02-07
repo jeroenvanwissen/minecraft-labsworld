@@ -1,8 +1,12 @@
 package nl.jeroenlabs.labsWorld.twitch
 
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
+import nl.jeroenlabs.labsWorld.twitch.commands.Permission
 
-object TwitchChatAuth {
+/**
+ * Single source of truth for Twitch permission and authorization checking.
+ */
+object TwitchAuth {
     /**
      * Best-effort extraction of IRC tags from Twitch4J chat events.
      * Uses reflection to stay resilient across Twitch4J versions.
@@ -32,4 +36,26 @@ object TwitchChatAuth {
 
     fun isBroadcasterOrModerator(event: ChannelMessageEvent): Boolean =
         isBroadcaster(event) || isModerator(event)
+
+    /**
+     * Checks whether the user behind [event] satisfies the [required] permission level.
+     */
+    fun isAuthorized(required: Permission, event: ChannelMessageEvent): Boolean {
+        if (required == Permission.EVERYONE) return true
+
+        if (isBroadcaster(event)) return true
+
+        val tags = getIrcTags(event)
+        val isMod = tags["mod"] == "1" || (tags["badges"]?.contains("moderator/") == true)
+        val isVip = tags["vip"] == "1" || (tags["badges"]?.contains("vip/") == true)
+        val isSubscriber = tags["subscriber"] == "1" || (tags["badges"]?.contains("subscriber/") == true)
+
+        return when (required) {
+            Permission.BROADCASTER -> false
+            Permission.MODERATOR -> isMod
+            Permission.VIP -> isMod || isVip
+            Permission.SUBSCRIBER -> isMod || isVip || isSubscriber
+            Permission.EVERYONE -> true
+        }
+    }
 }

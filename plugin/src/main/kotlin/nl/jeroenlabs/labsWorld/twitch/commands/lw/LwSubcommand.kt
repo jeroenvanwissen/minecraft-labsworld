@@ -3,10 +3,12 @@ package nl.jeroenlabs.labsWorld.twitch.commands.lw
 import nl.jeroenlabs.labsWorld.LabsWorld
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
+import nl.jeroenlabs.labsWorld.twitch.commands.Permission
 
 interface LwSubcommand {
     val name: String
     val aliases: Set<String> get() = emptySet()
+    val permission: Permission get() = Permission.EVERYONE
     fun handle(ctx: TwitchContext, inv: CommandInvocation)
 }
 

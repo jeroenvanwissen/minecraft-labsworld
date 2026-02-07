@@ -1,18 +1,15 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
-import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
+import nl.jeroenlabs.labsWorld.twitch.commands.Permission
 import nl.jeroenlabs.labsWorld.util.PlayerUtils
 
 object AttackSubcommand : LwSubcommand {
     override val name = "attack"
+    override val permission = Permission.MODERATOR
 
     override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
-        if (!TwitchChatAuth.isBroadcasterOrModerator(inv.event)) {
-            return inv.replyMention("You don't have permission.")
-        }
-
         val plugin = ctx.labsWorld()
 
         plugin.server.scheduler.runTask(plugin, Runnable {
