@@ -48,9 +48,19 @@ else
     exit 1
 fi
 
-# 3. Check diff size
+# 3. Run tests
 echo ""
-echo "3. Checking diff size..."
+echo "3. Running tests..."
+if ./gradlew test --quiet; then
+    check_pass "Tests passed"
+else
+    check_fail "Tests failed"
+    exit 1
+fi
+
+# 4. Check diff size
+echo ""
+echo "4. Checking diff size..."
 
 # Get files changed count
 FILES_CHANGED=$(git diff --name-only HEAD~1 2>/dev/null | wc -l | tr -d ' ' || echo "0")
@@ -81,9 +91,9 @@ else
     check_pass "Lines within limit"
 fi
 
-# 4. Show changed files
+# 5. Show changed files
 echo ""
-echo "4. Changed files:"
+echo "5. Changed files:"
 git diff --name-only HEAD~1 2>/dev/null | head -20 || echo "   (no commits to compare)"
 
 # Summary
