@@ -4,7 +4,7 @@ import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import nl.jeroenlabs.labsWorld.twitch.TwitchChatAuth
+import nl.jeroenlabs.labsWorld.twitch.TwitchAuth
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import org.bukkit.Bukkit
@@ -45,7 +45,6 @@ class CommandDispatcher(
             plugin.server.scheduler.runTask(
                 plugin,
                 Runnable {
-                    plugin.logger.info("Twitch Event User: ${event.user}")
                     val villager = plugin.getNpcByUserId(resolvedUserId)
                     if (villager == null) {
                         plugin.logger.info("Chat message from @$userName (no linked NPC): ${event.message}")
@@ -64,7 +63,7 @@ class CommandDispatcher(
 
         val command = commands[commandName.lowercase()] ?: return
 
-        if (!isAuthorized(command.permission, event)) {
+        if (!TwitchAuth.isAuthorized(command.permission, event)) {
             twitchClient.chat.sendMessage(
                 event.channel.name,
                 "@${event.user.name} You don't have permission to use !$commandName",
@@ -103,24 +102,7 @@ class CommandDispatcher(
         }
     }
 
-    private fun isAuthorized(required: Permission, event: ChannelMessageEvent): Boolean {
-        if (required == Permission.EVERYONE) return true
 
-        if (TwitchChatAuth.isBroadcaster(event)) return true
-
-        val tags = TwitchChatAuth.getIrcTags(event)
-        val isModerator = tags["mod"] == "1" || (tags["badges"]?.contains("moderator/") == true)
-        val isVip = tags["vip"] == "1" || (tags["badges"]?.contains("vip/") == true)
-        val isSubscriber = tags["subscriber"] == "1" || (tags["badges"]?.contains("subscriber/") == true)
-
-        return when (required) {
-            Permission.BROADCASTER -> false
-            Permission.MODERATOR -> isModerator
-            Permission.VIP -> isModerator || isVip
-            Permission.SUBSCRIBER -> isModerator || isVip || isSubscriber
-            Permission.EVERYONE -> true
-        }
-    }
 
     private fun refreshConfigCommandsIfNeeded() {
         val version = twitchConfigManager.getReloadVersion()
