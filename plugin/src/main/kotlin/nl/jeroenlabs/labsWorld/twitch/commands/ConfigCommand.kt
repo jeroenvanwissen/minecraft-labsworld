@@ -9,12 +9,11 @@ import nl.jeroenlabs.labsWorld.twitch.actions.ActionInvocation
 class ConfigCommand(
     private val context: CommandContext,
     private val binding: TwitchConfigManager.CommandBindingConfig,
-) : Command<Unit> {
+) : Command {
     override val twitchClient: TwitchClient = context.twitchClient
     override val name: String = binding.name
     override val permission: Permission = binding.permission
     override val type: CommandType = CommandType.COMMAND
-    override var storage: Unit = Unit
 
     override val runOnMainThread: Boolean = binding.runOnMainThread ?: true
 

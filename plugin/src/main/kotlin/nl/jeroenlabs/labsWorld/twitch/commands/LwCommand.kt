@@ -9,12 +9,11 @@ import nl.jeroenlabs.labsWorld.twitch.commands.lw.LwSubcommands
  */
 class LwCommand(
     private val context: CommandContext,
-) : Command<Unit> {
+) : Command {
     override val twitchClient: TwitchClient = context.twitchClient
     override val name = "lw"
     override val permission = Permission.EVERYONE
     override val type = CommandType.COMMAND
-    override var storage: Unit = Unit
 
     override fun init() {}
 

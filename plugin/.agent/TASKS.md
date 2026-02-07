@@ -575,7 +575,7 @@ src/main/kotlin/nl/jeroenlabs/labsWorld/
 | Field            | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | `C3`                         |
-| **Status**       | `[ ]`                        |
+| **Status**       | `[x]`                        |
 | **Dependencies** | None                         |
 | **Branch**       | `refactor/c3-remove-storage` |
 
