@@ -1,13 +1,13 @@
 package nl.jeroenlabs.labsWorld.twitch.commands
 
 import com.github.twitch4j.TwitchClient
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
-import nl.jeroenlabs.labsWorld.twitch.actions.ActionContext
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionExecutor
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionInvocation
 
 class ConfigCommand(
-    private val context: CommandContext,
+    private val context: TwitchContext,
     private val binding: TwitchConfigManager.CommandBindingConfig,
 ) : Command {
     override val twitchClient: TwitchClient = context.twitchClient
@@ -20,12 +20,7 @@ class ConfigCommand(
     override fun init() {}
 
     override fun handle(invocation: CommandInvocation) {
-        val actionContext = ActionContext(
-            plugin = context.plugin,
-            twitchClient = context.twitchClient,
-            twitchConfigManager = context.twitchConfigManager,
-        )
         val actionInvocation = ActionInvocation.fromCommand(invocation)
-        ActionExecutor.executeActions(actionContext, actionInvocation, binding.actions)
+        ActionExecutor.executeActions(context, actionInvocation, binding.actions)
     }
 }

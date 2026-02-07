@@ -1,7 +1,7 @@
 package nl.jeroenlabs.labsWorld.twitch.redeems.handlers
 
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandler
-import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandlerContext
 import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemInvocation
 import nl.jeroenlabs.labsWorld.util.anyToString
 import org.bukkit.Bukkit
@@ -11,7 +11,7 @@ object PlayerActionHandler : RedeemHandler {
     override val key = "player.action"
     override val runOnMainThread = true
 
-    override fun handle(context: RedeemHandlerContext, invocation: RedeemInvocation, params: Map<String, Any?>) {
+    override fun handle(context: TwitchContext, invocation: RedeemInvocation, params: Map<String, Any?>) {
         val targetName = anyToString(params["target_player"])
         val player = if (targetName != null) Bukkit.getPlayerExact(targetName) else Bukkit.getOnlinePlayers().firstOrNull()
         player ?: return

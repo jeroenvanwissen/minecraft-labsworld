@@ -5,12 +5,6 @@ data class ActionConfig(
     val params: Map<String, Any?>,
 )
 
-data class ActionContext(
-    val plugin: org.bukkit.plugin.java.JavaPlugin,
-    val twitchClient: com.github.twitch4j.TwitchClient,
-    val twitchConfigManager: nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager,
-)
-
 data class ActionInvocation(
     val userId: String,
     val userName: String,

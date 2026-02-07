@@ -22,11 +22,12 @@ import nl.jeroenlabs.labsWorld.util.anyToString
 import nl.jeroenlabs.labsWorld.util.anyToStringList
 import nl.jeroenlabs.labsWorld.util.PlayerUtils
 import nl.jeroenlabs.labsWorld.util.WorldStateUtils
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import kotlin.math.min
 import kotlin.random.Random
 
 object ActionExecutor {
-    fun executeActions(context: ActionContext, invocation: ActionInvocation, actions: List<ActionConfig>) {
+    fun executeActions(context: TwitchContext, invocation: ActionInvocation, actions: List<ActionConfig>) {
         actions.forEach { action ->
             runCatching {
                 executeAction(context, invocation, action)
@@ -38,7 +39,7 @@ object ActionExecutor {
         }
     }
 
-    private fun executeAction(context: ActionContext, invocation: ActionInvocation, action: ActionConfig) {
+    private fun executeAction(context: TwitchContext, invocation: ActionInvocation, action: ActionConfig) {
         when (action.type.lowercase()) {
             "npc.spawn" -> runSpawnNpc(context, invocation)
             "npc.swarm_player" -> runSwarmNpcsToPlayer(context, invocation, action.params)
@@ -53,8 +54,8 @@ object ActionExecutor {
         }
     }
 
-    private fun runAttackPlayer(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val plugin = context.plugin as nl.jeroenlabs.labsWorld.LabsWorld
+    private fun runAttackPlayer(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+        val plugin = context.plugin
         val target = resolveTargetPlayer(invocation, params) ?: return
         val durationSeconds = anyToInt(params["duration_seconds"], 30).coerceAtLeast(1)
         val heartsPerHit = anyToDouble(params["hearts_per_hit"], 2.0).coerceAtLeast(0.1)
@@ -72,8 +73,8 @@ object ActionExecutor {
             }
     }
 
-    private fun runSwarmNpcsToPlayer(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val plugin = context.plugin as nl.jeroenlabs.labsWorld.LabsWorld
+    private fun runSwarmNpcsToPlayer(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+        val plugin = context.plugin
         val target = resolveTargetPlayer(invocation, params) ?: return
         val durationSeconds = anyToInt(params["duration_seconds"], 30).coerceAtLeast(1)
         plugin.startAggroAllNpcs(target, durationSeconds)
@@ -95,7 +96,7 @@ object ActionExecutor {
         val weight: Double,
     )
 
-    private fun runLootChest(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+    private fun runLootChest(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val player = resolveTargetPlayer(invocation, params) ?: return
 
         val radius = anyToInt(params["radius"], 6).coerceIn(1, 30)
@@ -270,8 +271,8 @@ object ActionExecutor {
         }
     }
 
-    private fun runSpawnNpc(context: ActionContext, invocation: ActionInvocation) {
-        val plugin = context.plugin as nl.jeroenlabs.labsWorld.LabsWorld
+    private fun runSpawnNpc(context: TwitchContext, invocation: ActionInvocation) {
+        val plugin = context.plugin
         val spawnPoint = plugin.pickNpcSpawnPointSpawnLocation()
             ?: error("No NPC Spawn Point placed. Ask an admin to place one.")
 
@@ -280,7 +281,7 @@ object ActionExecutor {
             .onFailure { err -> error("NPC spawn failed: ${err.message}") }
     }
 
-    private fun runFireworks(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+    private fun runFireworks(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val player = resolveTargetPlayer(invocation, params) ?: return
         val count = anyToInt(params["count"], 1).coerceAtLeast(1)
         val power = anyToInt(params["power"], 1).coerceIn(0, 2)
@@ -301,7 +302,7 @@ object ActionExecutor {
         }
     }
 
-    private fun runHeal(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+    private fun runHeal(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val player = resolveTargetPlayer(invocation, params) ?: return
         val hearts = anyToDouble(params["hearts"], -1.0)
         val healthPoints = if (hearts >= 0) hearts * 2.0 else anyToDouble(params["health"], 4.0)
@@ -309,7 +310,7 @@ object ActionExecutor {
         player.health = min(player.maxHealth, player.health + healthPoints)
     }
 
-    private fun runSpawnMob(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+    private fun runSpawnMob(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val player = resolveTargetPlayer(invocation, params) ?: return
         val mobName = anyToString(params["mob"]) ?: error("Missing mob type")
         val entityType = parseEntityType(mobName) ?: error("Unknown mob type '$mobName'")
@@ -323,7 +324,7 @@ object ActionExecutor {
         }
     }
 
-    private fun runDropItems(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+    private fun runDropItems(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val player = resolveTargetPlayer(invocation, params) ?: return
         val itemsRaw = params["items"]
         val items = parseItemStacks(itemsRaw)
@@ -341,7 +342,7 @@ object ActionExecutor {
         }
     }
 
-    private fun runWeather(context: ActionContext, invocation: ActionInvocation, params: Map<String, Any?>) {
+    private fun runWeather(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val player = resolveTargetPlayer(invocation, params)
         val world = player?.world ?: pickDefaultWorld(context.plugin.server.worlds) ?: return
         val state = anyToString(params["state"])?.lowercase() ?: "clear"

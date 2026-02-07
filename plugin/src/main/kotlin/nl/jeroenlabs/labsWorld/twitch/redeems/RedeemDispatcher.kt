@@ -1,20 +1,19 @@
 package nl.jeroenlabs.labsWorld.twitch.redeems
 
-import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.eventsub.events.ChannelPointsCustomRewardRedemptionEvent
 import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
-import nl.jeroenlabs.labsWorld.twitch.actions.ActionContext
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionExecutor
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionInvocation
-import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
 
 class RedeemDispatcher(
-    private val plugin: JavaPlugin,
-    private val twitchClient: TwitchClient,
-    private val twitchConfigManager: TwitchConfigManager,
+    private val context: TwitchContext,
 ) {
+    private val plugin get() = context.plugin
+    private val twitchConfigManager get() = context.twitchConfigManager
+
     private val handlers = ConcurrentHashMap<String, RedeemHandler>()
 
     fun register(handler: RedeemHandler) {
@@ -53,10 +52,9 @@ class RedeemDispatcher(
 
         val runner = Runnable {
             if (hasActions) {
-                val actionContext = ActionContext(plugin, twitchClient, twitchConfigManager)
                 val actionInvocation = ActionInvocation.fromRedeem(invocation)
                 runCatching {
-                    ActionExecutor.executeActions(actionContext, actionInvocation, binding.actions)
+                    ActionExecutor.executeActions(context, actionInvocation, binding.actions)
                 }.onFailure { err ->
                     plugin.logger.log(
                         Level.WARNING,
@@ -65,7 +63,6 @@ class RedeemDispatcher(
                     )
                 }
             } else if (handler != null) {
-                val context = RedeemHandlerContext(plugin, twitchClient, twitchConfigManager)
                 runCatching {
                     handler.handle(context, invocation, binding.params)
                 }.onFailure { err ->

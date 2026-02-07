@@ -1,6 +1,7 @@
 package nl.jeroenlabs.labsWorld.twitch.commands
 
 import com.github.twitch4j.TwitchClient
+import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.lw.LwSubcommand
 import nl.jeroenlabs.labsWorld.twitch.commands.lw.LwSubcommands
 
@@ -8,7 +9,7 @@ import nl.jeroenlabs.labsWorld.twitch.commands.lw.LwSubcommands
  * Main !lw command that delegates to subcommands.
  */
 class LwCommand(
-    private val context: CommandContext,
+    private val context: TwitchContext,
 ) : Command {
     override val twitchClient: TwitchClient = context.twitchClient
     override val name = "lw"
