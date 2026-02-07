@@ -1364,7 +1364,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/
 | Field            | Value                        |
 | ---------------- | ---------------------------- |
 | **ID**           | `T4`                         |
-| **Status**       | `[ ]`                        |
+| **Status**       | `[x]`                        |
 | **Dependencies** | `T0`                         |
 | **Branch**       | `test/t4-auth-matrix`        |
 
@@ -1385,9 +1385,9 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/
 
 **Acceptance Criteria:**
 
-- [ ] Permission matrix tests exist and pass
-- [ ] Regression around role precedence is prevented
-- [ ] `./gradlew test` passes
+- [x] Permission matrix tests exist and pass
+- [x] Regression around role precedence is prevented
+- [x] `./gradlew test` passes
 
 **Commands:**
 
