@@ -11,7 +11,7 @@ object DuelSubcommand : LwSubcommand {
 
         // Require invoker to have an NPC
         if (plugin.getStoredLinkedUserName(inv.userId) == null) {
-            return inv.replyMention("You don't have an NPC yet. Run !lw spawn first.")
+            return inv.replyMention("You don't have an NPC yet. Redeem the NPC spawn channel point reward first.")
         }
 
         val rawTarget = inv.args.getOrNull(1)
@@ -26,7 +26,7 @@ object DuelSubcommand : LwSubcommand {
 
         val targetUserId = plugin.resolveLinkedUserIdByUserName(targetName)
         if (targetUserId == null) {
-            return inv.replyMention("No NPC found for @$targetName. They need to run !lw spawn first.")
+            return inv.replyMention("No NPC found for @$targetName. They need to redeem the NPC spawn channel point reward first.")
         }
 
         val targetStoredName = plugin.getStoredLinkedUserName(targetUserId) ?: targetName
