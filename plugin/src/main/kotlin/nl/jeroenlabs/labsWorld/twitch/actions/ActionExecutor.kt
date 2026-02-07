@@ -1,12 +1,9 @@
 package nl.jeroenlabs.labsWorld.twitch.actions
 
 import net.kyori.adventure.text.Component
-import org.bukkit.Color
-import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.Chest
-import org.bukkit.entity.Firework
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
@@ -14,13 +11,19 @@ import nl.jeroenlabs.labsWorld.util.anyToBool
 import nl.jeroenlabs.labsWorld.util.anyToDouble
 import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
-import nl.jeroenlabs.labsWorld.util.anyToStringList
 import nl.jeroenlabs.labsWorld.util.WorldStateUtils
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
+import nl.jeroenlabs.labsWorld.twitch.actions.handlers.FireworksActionHandler
+import nl.jeroenlabs.labsWorld.twitch.actions.handlers.HealActionHandler
 import kotlin.math.min
 import kotlin.random.Random
 
 object ActionExecutor {
+    private val handlers: Map<String, ActionHandler> = listOf(
+        FireworksActionHandler(),
+        HealActionHandler(),
+    ).associateBy { it.type }
+
     fun executeActions(context: TwitchContext, invocation: ActionInvocation, actions: List<ActionConfig>) {
         actions.forEach { action ->
             runCatching {
@@ -34,12 +37,16 @@ object ActionExecutor {
     }
 
     private fun executeAction(context: TwitchContext, invocation: ActionInvocation, action: ActionConfig) {
+        val handler = handlers[action.type.lowercase()]
+        if (handler != null) {
+            handler.handle(context, invocation, action.params)
+            return
+        }
+
         when (action.type.lowercase()) {
             "npc.spawn" -> runSpawnNpc(context, invocation)
             "npc.swarm_player" -> runSwarmNpcsToPlayer(context, invocation, action.params)
             "npc.attack_player" -> runAttackPlayer(context, invocation, action.params)
-            "player.fireworks" -> runFireworks(context, invocation, action.params)
-            "player.heal" -> runHeal(context, invocation, action.params)
             "player.spawn_mob" -> runSpawnMob(context, invocation, action.params)
             "player.drop_items" -> runDropItems(context, invocation, action.params)
             "world.loot_chest", "player.loot_chest" -> runLootChest(context, invocation, action.params)
@@ -273,35 +280,6 @@ object ActionExecutor {
         plugin.ensureNpcAtSpawnPoint(invocation.userId, invocation.userName, spawnPoint)
             .onSuccess { msg -> context.twitchClient.chat.sendMessage(invocation.channelName, msg) }
             .onFailure { err -> error("NPC spawn failed: ${err.message}") }
-    }
-
-    private fun runFireworks(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
-        val count = anyToInt(params["count"], 1).coerceAtLeast(1)
-        val power = anyToInt(params["power"], 1).coerceIn(0, 2)
-        val shape = anyToString(params["shape"])?.lowercase() ?: "ball"
-        val colors = ActionUtils.parseColors(anyToStringList(params["colors"]))
-
-        repeat(count) {
-            val location = player.location.clone().add(ActionUtils.randomOffset(0.6))
-            val firework = player.world.spawn(location, Firework::class.java)
-            val meta = firework.fireworkMeta
-            val effect = FireworkEffect.builder()
-                .with(ActionUtils.parseFireworkType(shape))
-                .withColor(colors.ifEmpty { listOf(Color.WHITE) })
-                .build()
-            meta.power = power
-            meta.addEffect(effect)
-            firework.fireworkMeta = meta
-        }
-    }
-
-    private fun runHeal(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
-        val player = ActionUtils.resolveTargetPlayer(invocation, params) ?: return
-        val hearts = anyToDouble(params["hearts"], -1.0)
-        val healthPoints = if (hearts >= 0) hearts * 2.0 else anyToDouble(params["health"], 4.0)
-        if (healthPoints <= 0.0) return
-        player.health = min(player.maxHealth, player.health + healthPoints)
     }
 
     private fun runSpawnMob(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
