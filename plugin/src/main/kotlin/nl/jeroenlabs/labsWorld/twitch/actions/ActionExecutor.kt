@@ -42,8 +42,12 @@ object ActionExecutor {
     }
 
     private fun executeAction(context: TwitchContext, invocation: ActionInvocation, action: ActionConfig) {
-        val handler = handlers[action.type.lowercase()]
-            ?: error("Unknown action type '${action.type}'")
-        handler.handle(context, invocation, action.params)
+        executeAction(context, invocation, action.type, action.params)
+    }
+
+    fun executeAction(context: TwitchContext, invocation: ActionInvocation, type: String, params: Map<String, Any?> = emptyMap()) {
+        val handler = handlers[type.lowercase()]
+            ?: error("Unknown action type '$type'")
+        handler.handle(context, invocation, params)
     }
 }
