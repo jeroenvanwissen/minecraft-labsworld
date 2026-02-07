@@ -38,7 +38,13 @@ class LwCommand(
             return
         }
 
-        subcommand.handle(context, invocation)
+        if (subcommand.runOnMainThread) {
+            context.plugin.server.scheduler.runTask(context.plugin, Runnable {
+                subcommand.handle(context, invocation)
+            })
+        } else {
+            subcommand.handle(context, invocation)
+        }
     }
 
     private val subcommandIndex: Map<String, LwSubcommand> by lazy {

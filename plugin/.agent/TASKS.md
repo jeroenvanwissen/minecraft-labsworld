@@ -741,7 +741,7 @@ grep -r "isBroadcasterOrModerator" src/main/kotlin/nl/jeroenlabs/labsWorld/twitc
 | Field            | Value                     |
 | ---------------- | ------------------------- |
 | **ID**           | `D3`                      |
-| **Status**       | `[ ]`                     |
+| **Status**       | `[x]`                     |
 | **Dependencies** | `D2`                      |
 | **Branch**       | `refactor/d3-main-thread` |
 

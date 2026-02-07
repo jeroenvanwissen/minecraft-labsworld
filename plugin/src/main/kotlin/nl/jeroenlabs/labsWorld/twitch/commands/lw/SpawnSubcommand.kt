@@ -9,16 +9,14 @@ object SpawnSubcommand : LwSubcommand {
     override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
         val plugin = ctx.labsWorld()
 
-        plugin.server.scheduler.runTask(plugin, Runnable {
-            val spawnPoint = plugin.pickNpcSpawnPointSpawnLocation()
-            if (spawnPoint == null) {
-                inv.replyMention("No NPC Spawn Point placed. Ask an admin to place one.")
-                return@Runnable
-            }
+        val spawnPoint = plugin.pickNpcSpawnPointSpawnLocation()
+        if (spawnPoint == null) {
+            inv.replyMention("No NPC Spawn Point placed. Ask an admin to place one.")
+            return
+        }
 
-            plugin.ensureNpcAtSpawnPoint(inv.userId, inv.userName, spawnPoint)
-                .onSuccess { msg -> inv.replyMention(msg) }
-                .onFailure { inv.replyMention("Spawn failed: ${it.message}") }
-        })
+        plugin.ensureNpcAtSpawnPoint(inv.userId, inv.userName, spawnPoint)
+            .onSuccess { msg -> inv.replyMention(msg) }
+            .onFailure { inv.replyMention("Spawn failed: ${it.message}") }
     }
 }
