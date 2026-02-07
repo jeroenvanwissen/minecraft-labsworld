@@ -1,0 +1,26 @@
+channel_name: "test_channel"
+
+redeems:
+  enabled: true
+  log_unmatched: false
+
+  bindings:
+    # Invalid: missing both reward_id and reward_title
+    - handler: "npc.spawn"
+      params:
+        message: "Test"
+
+    # Invalid: has reward_id but missing both handler and actions
+    - reward_id: "invalid-1111"
+
+    # Invalid: has reward_title but missing both handler and actions
+    - reward_title: "Invalid Reward"
+
+    # Invalid: empty reward_id and reward_title
+    - reward_id: ""
+      reward_title: ""
+      handler: "npc.spawn"
+
+    # Invalid: null handler with no actions
+    - reward_id: "9999-0000"
+      handler: null

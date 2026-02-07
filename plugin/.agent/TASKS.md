@@ -1323,7 +1323,7 @@ src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/
 | Field            | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | `T3`                           |
-| **Status**       | `[ ]`                          |
+| **Status**       | `[x]`                          |
 | **Dependencies** | `T0`                           |
 | **Branch**       | `test/t3-config-bindings`      |
 
