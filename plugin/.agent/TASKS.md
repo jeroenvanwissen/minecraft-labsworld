@@ -1089,7 +1089,7 @@ ls src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/commands/lw/  # Should not lis
 | Field            | Value                     |
 | ---------------- | ------------------------- |
 | **ID**           | `F1`                      |
-| **Status**       | `[ ]`                     |
+| **Status**       | `[x]`                     |
 | **Dependencies** | `B1`                      |
 | **Branch**       | `refactor/f1-chat-bubble` |
 
