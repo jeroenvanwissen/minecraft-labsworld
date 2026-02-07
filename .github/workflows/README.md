@@ -7,8 +7,14 @@ Runs unit tests on every pull request and push to `main` branch.
 ### What it does:
 - Checks out the code
 - Sets up JDK 21
-- Runs `./gradlew test`
+- Runs `plugin/gradlew test` in the plugin directory
 - Publishes test results (visible in PR checks)
+
+### Permissions:
+The workflow requires these permissions to publish test results:
+- `contents: read` - Read repository contents
+- `checks: write` - Create/update check runs with test results
+- `pull-requests: write` - Comment on PRs with test summaries
 
 ### Making it required:
 To enforce this check before merging PRs:
