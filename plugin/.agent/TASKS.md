@@ -1037,7 +1037,7 @@ grep -r "when.*type\|\"fireworks\"\|\"heal\"\|\"spawn_mob\"" src/main/kotlin/nl/
 | Field            | Value                           |
 | ---------------- | ------------------------------- |
 | **ID**           | `E5`                            |
-| **Status**       | `[ ]`                           |
+| **Status**       | `[x]`                           |
 | **Dependencies** | `E4`                            |
 | **Branch**       | `refactor/e5-commands-delegate` |
 
