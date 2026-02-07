@@ -16,12 +16,6 @@ interface LwSubcommand {
 // Shared helpers for subcommands
 fun TwitchContext.labsWorld(): LabsWorld = plugin
 
-fun parseDuration(arg: String?, default: Int = 30): Int =
-    (arg?.toIntOrNull() ?: default).coerceIn(1, 300)
-
-fun parseDamage(arg: String?, default: Double = 1.0): Double =
-    (arg?.toDoubleOrNull() ?: default).coerceIn(0.5, 10.0)
-
 fun sanitizeTwitchName(raw: String): String {
     val noAt = raw.trim().removePrefix("@")
     return noAt.takeWhile { it.isLetterOrDigit() || it == '_' }
