@@ -172,6 +172,6 @@ nl.jeroenlabs.labsWorld/
 
 ## For Future Reference
 
-**Workflow guide:** [.agent/README.md](.agent/README.md)
-**Task template:** [.agent/TASKS.md](.agent/TASKS.md)
+**Workflow guide:** [../.agent/README.md](../.agent/README.md)
+**Task template:** [../.agent/TASKS.md](../.agent/TASKS.md)
 **Detailed commit history:** Git log provides implementation details for each change

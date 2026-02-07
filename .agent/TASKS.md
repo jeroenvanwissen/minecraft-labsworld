@@ -54,14 +54,14 @@ src/main/kotlin/path/to/
 - [ ] Criterion one
 - [ ] Criterion two
 - [ ] Criterion three
-- [ ] Build passes: `./gradlew compileKotlin`
-- [ ] Tests pass: `./gradlew test`
+- [ ] Build passes: `plugin/gradlew compileKotlin`
+- [ ] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 
 ```bash
-./gradlew compileKotlin
-./gradlew test
+plugin/gradlew compileKotlin
+plugin/gradlew test
 # Add task-specific verification commands
 ```
 
@@ -70,12 +70,12 @@ src/main/kotlin/path/to/
 ## Verification Commands Reference
 
 ```bash
-./gradlew compileKotlin        # Compile check
-./gradlew shadowJar            # Build JAR
-./gradlew test                 # Run unit tests
-./gradlew runServer            # Run test server (manual)
-./gradlew build                # Full build
-./gradlew installPlugin        # Install to server
+plugin/gradlew compileKotlin        # Compile check
+plugin/gradlew shadowJar            # Build JAR
+plugin/gradlew test                 # Run unit tests
+plugin/gradlew runServer            # Run test server (manual)
+plugin/gradlew build                # Full build
+plugin/gradlew installPlugin        # Install to server
 ```
 
 ---
@@ -106,8 +106,8 @@ This helps identify:
 | ------------------------------ | ----------------------------- | ----------------------- |
 | Max files changed per PR       | 8                             | Split into subtasks     |
 | Max diff lines (added+removed) | 500                           | Split into subtasks     |
-| Compile check                  | `./gradlew compileKotlin`     | Must pass before PR     |
-| Test suite                     | `./gradlew test`              | Must pass before PR     |
+| Compile check                  | `plugin/gradlew compileKotlin`     | Must pass before PR     |
+| Test suite                     | `plugin/gradlew test`              | Must pass before PR     |
 | Code review required           | All PRs                       | Required before merge   |
 | Ambiguity detected             | Missing info, unclear req     | **STOP and ask user**   |
 

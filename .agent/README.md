@@ -20,7 +20,7 @@
 2. Create a branch: git checkout -b refactor/<task-id>
 3. In Copilot Chat: "Execute task <ID> from .agent/TASKS.md"
 4. Review the changes Copilot makes
-5. Run: ./gradlew compileKotlin && ./gradlew test
+5. Run: plugin/gradlew compileKotlin && plugin/gradlew test
 6. Commit: git add -A && git commit -m "descriptive message"
 7. Push: git push -u origin <branch-name>
 8. Create PR: gh pr create --title "..." --body "..."
@@ -37,7 +37,7 @@
 | ------------------ | --------- | ------------------------- | ------------------------------------------------------ |
 | **Git**            | 2.30+     | Version control           | `brew install git`                                     |
 | **JDK**            | 21        | Kotlin/Gradle compilation | `brew install openjdk@21`                              |
-| **Gradle**         | (wrapper) | Build system              | Included via `./gradlew`                               |
+| **Gradle**         | (wrapper) | Build system              | Included via `plugin/gradlew`                               |
 | **VS Code**        | Latest    | Editor with Copilot       | [code.visualstudio.com](https://code.visualstudio.com) |
 | **GitHub Copilot** | Extension | AI assistant              | VS Code marketplace                                    |
 | **GitHub CLI**     | 2.0+      | Create PRs from terminal  | `brew install gh`                                      |
@@ -47,7 +47,7 @@
 ```bash
 git --version          # Should be 2.30+
 java -version          # Should be 21+
-./gradlew --version    # Should work
+plugin/gradlew --version    # Should work
 gh --version           # Should be 2.0+
 gh auth status         # Should be authenticated
 ```
@@ -96,9 +96,9 @@ git diff --stat | tail -1  # Check diff size (guardrails)
 ### Step 5: Verify Build
 
 ```bash
-./gradlew compileKotlin
-./gradlew shadowJar
-./gradlew test
+plugin/gradlew compileKotlin
+plugin/gradlew shadowJar
+plugin/gradlew test
 ```
 
 Or use the verification script:
@@ -164,8 +164,8 @@ gh pr create \
 - Why these changes were necessary
 
 ## Verification
-- [x] ./gradlew compileKotlin passes
-- [x] ./gradlew test passes
+- [x] plugin/gradlew compileKotlin passes
+- [x] plugin/gradlew test passes
 - [x] All acceptance criteria met"
 ```
 
@@ -214,13 +214,13 @@ Task D1 affects too many files. Split it into subtasks D1a, D1b, D1c.
 Keep your main branch clean:
 
 ```bash
-cd /Users/jeroen/Projects/MineCraft/minecraft-labsworld/plugin
+cd /Users/jeroen/Projects/MineCraft/minecraft-labsworld
 git checkout main
 git pull origin main
 
 # Create isolated worktree
-git worktree add ../plugin-agent-work main
-cd ../plugin-agent-work
+git worktree add ../minecraft-labsworld-agent-work main
+cd ../minecraft-labsworld-agent-work
 
 # Open in new VS Code window
 code .
@@ -229,8 +229,8 @@ code .
 To reset:
 
 ```bash
-git worktree remove ../plugin-agent-work --force
-git worktree add ../plugin-agent-work main
+git worktree remove ../minecraft-labsworld-agent-work --force
+git worktree add ../minecraft-labsworld-agent-work main
 ```
 
 ### Option 2: Branch-Only (Simplest)
@@ -253,7 +253,7 @@ git branch -D refactor/a1-task-name
 Run an isolated Minecraft server with your plugin:
 
 ```bash
-./gradlew runServer
+plugin/gradlew runServer
 
 # Server runs in run/ directory (gitignored)
 # Plugin JAR auto-installed
@@ -276,14 +276,14 @@ git checkout .
 ### Compile Error
 
 ```bash
-./gradlew compileKotlin 2>&1 | head -30
+plugin/gradlew compileKotlin 2>&1 | head -30
 # Paste error to Copilot Chat and ask for fix
 ```
 
 ### Test Failures
 
 ```bash
-./gradlew test --tests "*FailingTest"
+plugin/gradlew test --tests "*FailingTest"
 # Investigate and fix, don't skip tests
 ```
 
@@ -342,9 +342,9 @@ Follow these constraints to maintain quality:
 | ------------------------------ | ----------------------------- | ------------------------- |
 | Max files changed per PR       | 8                             | Split into subtasks       |
 | Max diff lines (added+removed) | 500                           | Split into subtasks       |
-| Compile check                  | `./gradlew compileKotlin`     | Must pass before PR       |
-| Test suite                     | `./gradlew test`              | Must pass before PR       |
-| Plugin load test               | `./gradlew runServer`         | Recommended               |
+| Compile check                  | `plugin/gradlew compileKotlin`     | Must pass before PR       |
+| Test suite                     | `plugin/gradlew test`              | Must pass before PR       |
+| Plugin load test               | `plugin/gradlew runServer`         | Recommended               |
 | Code review required           | All PRs                       | Required before merge     |
 | Ambiguity detected             | Missing info, unclear req     | **STOP and ask user**     |
 
@@ -421,7 +421,7 @@ Located in `.agent/scripts/`:
 1. **Never commit secrets** — Keep `twitch.config.yml` credentials safe
 2. **Review before push** — Always `git diff` before committing
 3. **Use branches** — Never commit directly to main
-4. **Test on dev server** — Use `./gradlew runServer`, not production
+4. **Test on dev server** — Use `plugin/gradlew runServer`, not production
 5. **Small PRs** — Easier to review and revert
 6. **Feature branches** — All work uses feature branches with PR reviews
 
@@ -433,7 +433,7 @@ Located in `.agent/scripts/`:
 2. **Define your first task** in TASKS.md following the example
 3. **Create a branch** with `git checkout -b refactor/<task-id>`
 4. **Ask Copilot** to execute the task
-5. **Run verification** with `./gradlew compileKotlin && ./gradlew test`
+5. **Run verification** with `plugin/gradlew compileKotlin && plugin/gradlew test`
 6. **Commit and push** following the commit message format
 7. **Create a PR** with `gh pr create`
 8. **Mark task as completed** when PR is merged
@@ -447,18 +447,18 @@ Located in `.agent/scripts/`:
 | ------------------- | ------------------------------------------------ |
 | Create branch       | `git checkout -b refactor/<task>`                |
 | Ask Copilot         | _"Execute task X from .agent/TASKS.md"_          |
-| Verify build        | `./gradlew compileKotlin && ./gradlew test`      |
+| Verify build        | `plugin/gradlew compileKotlin && plugin/gradlew test`      |
 | Commit              | `git add -A && git commit -m "message"`          |
 | Push                | `git push -u origin <branch-name>`               |
 | Create PR           | `gh pr create --title "..." --body "..."`        |
 | Reset changes       | `git checkout .`                                 |
 | Delete branch       | `git checkout main && git branch -D <branch>`    |
-| Compile check       | `./gradlew compileKotlin`                        |
-| Build JAR           | `./gradlew shadowJar`                            |
-| Run unit tests      | `./gradlew test`                                 |
-| Run test server     | `./gradlew runServer`                            |
-| Full build          | `./gradlew build`                                |
-| Install to server   | `./gradlew installPlugin`                        |
+| Compile check       | `plugin/gradlew compileKotlin`                        |
+| Build JAR           | `plugin/gradlew shadowJar`                            |
+| Run unit tests      | `plugin/gradlew test`                                 |
+| Run test server     | `plugin/gradlew runServer`                            |
+| Full build          | `plugin/gradlew build`                                |
+| Install to server   | `plugin/gradlew installPlugin`                        |
 
 ---
 
@@ -471,4 +471,4 @@ Located in `.agent/scripts/`:
 - Archive completed phases to keep TASKS.md manageable
 - Reference git commit history for implementation details
 - Use git worktrees to keep your main branch clean
-- Test on `./gradlew runServer` before creating PR
+- Test on `plugin/gradlew runServer` before creating PR

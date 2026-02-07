@@ -24,9 +24,10 @@ jobs:
           cache: 'gradle'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x plugin/gradlew
 
       - name: Run unit tests
+        working-directory: plugin
         run: ./gradlew test
 
       - name: Publish test results
@@ -34,4 +35,4 @@ jobs:
         if: always()
         with:
           files: |
-            build/test-results/**/*.xml
+            plugin/build/test-results/**/*.xml

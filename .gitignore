@@ -1,25 +1,114 @@
-# Root ignores for generated / runtime data
+# ============================================
+# IDE / Editor
+# ============================================
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+atlassian-ide-plugin.xml
 
-# Minecraft server runtime (Docker volumes)
+.vscode/*
+!.vscode/settings.json
+
+# ============================================
+# Gradle
+# ============================================
+.gradle/
+**/build/
+plugin/.gradle/
+plugin/build/
+
+# Gradle cache
+.gradletasknamecache
+gradle-app.setting
+
+# Don't ignore Gradle wrapper jar
+!gradle-wrapper.jar
+
+# ============================================
+# Java / Kotlin
+# ============================================
+*.class
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# BlueJ files
+*.ctxt
+
+# VM crash logs
+hs_err_pid*
+
+# ============================================
+# Minecraft / Plugin Runtime
+# ============================================
+# Server runtime (Docker volumes)
 server/minecraft-data/
 server/minecraft-logs/
 server/minecraft-plugins/
 
-# Plugin build outputs
-plugin/build/
-plugin/.gradle/
+# Common working directories
+run/
+runs/
 
-# Gradle (if present at root)
-.gradle/
-
-# IDE
-.idea/
-*.iml
-
-# OS
+# ============================================
+# OS-Specific
+# ============================================
+# macOS
 .DS_Store
-Thumbs.db
+.AppleDouble
+.LSOverride
+._*
+Icon
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
-# Env files
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.stackdump
+*.lnk
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# ============================================
+# Environment / Secrets
+# ============================================
 .env
 .env.*
+
+# ============================================
+# Build Artifacts
+# ============================================
+plugin/.kotlin/
