@@ -7,8 +7,8 @@ import nl.jeroenlabs.labsWorld.util.PlayerUtils
 import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
 
-object NpcAggroHandler : RedeemHandler {
-    override val key = "npc.aggro"
+object NpcSwarmHandler : RedeemHandler {
+    override val key = "npc.swarm"
     override val runOnMainThread = true
 
     override fun handle(context: TwitchContext, invocation: RedeemInvocation, params: Map<String, Any?>) {
@@ -18,6 +18,6 @@ object NpcAggroHandler : RedeemHandler {
         val targetName = anyToString(params["target_player"])
         val target = PlayerUtils.pickTargetPlayer(lw.server, targetName, allowRandom = true) ?: error("No online players")
 
-        lw.startAggroAllNpcs(target, seconds).getOrThrow()
+        lw.startSwarmAllNpcs(target, seconds).getOrThrow()
     }
 }

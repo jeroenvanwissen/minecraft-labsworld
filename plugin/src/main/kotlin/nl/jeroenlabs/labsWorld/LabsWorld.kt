@@ -1,6 +1,7 @@
 package nl.jeroenlabs.labsWorld
 
-import nl.jeroenlabs.labsWorld.npc.VillagerNpcAggroService
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcSwarmService
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcAttackService
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcDuelService
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcLinkManager
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcManager
@@ -23,7 +24,8 @@ class LabsWorld : JavaPlugin() {
     private lateinit var npcManager: VillagerNpcManager
     private lateinit var npcSpawnPointManager: VillagerNpcSpawnPointManager
     private lateinit var npcLinkManager: VillagerNpcLinkManager
-    private lateinit var npcAggroService: VillagerNpcAggroService
+    private lateinit var npcSwarmService: VillagerNpcSwarmService
+    private lateinit var npcAttackService: VillagerNpcAttackService
     private lateinit var npcDuelService: VillagerNpcDuelService
 
     private val twitchReloadInProgress = AtomicBoolean(false)
@@ -64,7 +66,8 @@ class LabsWorld : JavaPlugin() {
         npcLinkManager = VillagerNpcLinkManager(this, npcManager)
         npcLinkManager.init()
 
-        npcAggroService = VillagerNpcAggroService(this, npcLinkManager)
+        npcSwarmService = VillagerNpcSwarmService(this, npcLinkManager)
+        npcAttackService = VillagerNpcAttackService(this, npcLinkManager)
 
         npcSpawnPointManager = VillagerNpcSpawnPointManager(this)
         npcSpawnPointManager.init()
@@ -88,11 +91,11 @@ class LabsWorld : JavaPlugin() {
         spawnLocation: Location,
     ): Result<String> = npcLinkManager.ensureNpcAtWithChunkLoad(userId, userName, spawnLocation)
 
-    fun startAggroAllNpcs(
+    fun startSwarmAllNpcs(
         target: Player,
         durationSeconds: Int = 30,
     ): Result<Int> {
-        return npcAggroService.startAggro(target, durationSeconds)
+        return npcSwarmService.startSwarm(target, durationSeconds)
     }
 
     fun startAttackAllNpcs(
@@ -100,7 +103,7 @@ class LabsWorld : JavaPlugin() {
         durationSeconds: Int = 30,
         damageHeartsPerHit: Double = 1.0,
     ): Result<Int> {
-        return npcAggroService.startAttack(
+        return npcAttackService.startAttack(
             target = target,
             durationSeconds = durationSeconds,
             damageHeartsPerHit = damageHeartsPerHit,

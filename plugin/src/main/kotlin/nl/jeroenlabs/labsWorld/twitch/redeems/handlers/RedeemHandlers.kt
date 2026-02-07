@@ -6,7 +6,7 @@ import nl.jeroenlabs.labsWorld.twitch.redeems.RedeemHandler
 object RedeemHandlers {
     val all: List<RedeemHandler> = listOf(
         NpcSpawnHandler,
-        NpcAggroHandler,
+        NpcSwarmHandler,
         NpcAttackHandler,
         ChatSayHandler,
         WorldStateHandler,
