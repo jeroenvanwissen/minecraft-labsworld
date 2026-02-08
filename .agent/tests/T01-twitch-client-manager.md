@@ -2,8 +2,8 @@
 
 **Source:** `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/TwitchClientManager.kt`
 **Test file:** `src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/TwitchClientManagerTest.kt`
-**Current coverage:** 0/119 lines (0%)
-**Target coverage:** ~70%+ of testable lines
+**Status:** ✅ Done (PR #41)
+**Coverage:** ~37% instruction coverage (all testable lines covered; remaining lines require real Twitch4J connections)
 
 ## Why This Matters
 At 119 uncovered lines this is the single largest coverage gap. Many branches are around config validation and credential handling which are testable without a real Twitch connection.

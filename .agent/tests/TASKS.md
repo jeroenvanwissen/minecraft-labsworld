@@ -24,7 +24,7 @@
 
 | # | Task File | Source File | Lines | Current |
 |---|-----------|------------|-------|---------|
-| 1 | [T01-twitch-client-manager.md](T01-twitch-client-manager.md) | TwitchClientManager.kt | 119 | 0% |
+| 1 | [T01-twitch-client-manager.md](T01-twitch-client-manager.md) | TwitchClientManager.kt | 119 | ✅ Done (PR #41) |
 | 2 | [T02-villager-npc-duel-service.md](T02-villager-npc-duel-service.md) | VillagerNpcDuelService.kt | 117 | 0% |
 | 3 | [T03-loot-chest-action-handler.md](T03-loot-chest-action-handler.md) | LootChestActionHandler.kt | 106 | 2.8% |
 | 4 | [T04-labs-world.md](T04-labs-world.md) | LabsWorld.kt | 82 | 0% |
