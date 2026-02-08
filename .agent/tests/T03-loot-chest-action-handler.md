@@ -1,5 +1,6 @@
 # T03: LootChestActionHandler Tests
 
+**Status:** ✅ Done (PR #43)
 **Source:** `src/main/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/handlers/LootChestActionHandler.kt`
 **Test file:** `src/test/kotlin/nl/jeroenlabs/labsWorld/twitch/actions/handlers/LootChestActionHandlerTest.kt`
 **Current coverage:** 3/106 lines (2.8%)
