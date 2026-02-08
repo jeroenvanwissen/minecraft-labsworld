@@ -1,6 +1,6 @@
-# Refactoring Tasks
+# Project Tasks
 
-> Define and track systematic code refactoring tasks.
+> LabsWorld — Minecraft Paper Plugin with Twitch chat integration for NPC villagers.
 > Each task = 1 PR with clear acceptance criteria.
 
 ---
@@ -18,51 +18,51 @@
 
 ## Current Tasks
 
-### Phase A — Example Phase
+### Wave A — Critical Fixes
 
-_Add your tasks here following the template below:_
+_Fix correctness and reliability issues that can cause data loss or unpredictable behavior._
 
-#### Task A1: Example Task
+| Status | ID   | Task                                                                  | Priority | Dependencies |
+| ------ | ---- | --------------------------------------------------------------------- | -------- | ------------ |
+| `[ ]`  | `A1` | [Fix Concurrent Duel Conflicts](tasks/A1-fix-duel-conflicts.md)       | Critical | None         |
+| `[ ]`  | `A2` | [Add Error Handling for Chunk Loading](tasks/A2-fix-chunk-loading.md)  | High     | None         |
 
-| Field            | Value                   |
-| ---------------- | ----------------------- |
-| **ID**           | `A1`                    |
-| **Status**       | `[ ]`                   |
-| **Dependencies** | None                    |
-| **Branch**       | `refactor/a1-task-name` |
+### Wave B — Validation & Robustness
 
-**Goal:**
-Brief description of what this task aims to achieve.
+_Add missing validation, cooldowns, and logging to prevent abuse and improve debuggability._
 
-**Scope:**
+| Status | ID   | Task                                                                      | Priority | Dependencies |
+| ------ | ---- | ------------------------------------------------------------------------- | -------- | ------------ |
+| `[ ]`  | `B1` | [Add Cooldown for Swarm/Attack Services](tasks/B1-add-swarm-cooldown.md)  | Medium   | None         |
+| `[ ]`  | `B2` | [Make Duel Parameters Configurable](tasks/B2-configurable-duel-params.md) | Medium   | A1           |
+| `[ ]`  | `B3` | [Add Logging to Redeem Handlers](tasks/B3-add-handler-logging.md)         | Medium   | None         |
+
+### Wave C — Hardening
+
+_Tighten permissions and improve error reporting for edge cases._
+
+| Status | ID   | Task                                                                          | Priority | Dependencies |
+| ------ | ---- | ----------------------------------------------------------------------------- | -------- | ------------ |
+| `[ ]`  | `C1` | [Add Permission Check on Duel Command](tasks/C1-duel-permission-check.md)     | High     | A1           |
+| `[ ]`  | `C2` | [Improve Spawn Point Error Messages](tasks/C2-spawn-point-error-messages.md)  | Medium   | None         |
+| `[ ]`  | `C3` | [Add Duel Accept/Timeout Flow](tasks/C3-duel-accept-timer.md)                 | Medium   | A1           |
+
+---
+
+## Dependency Graph
 
 ```
-src/main/kotlin/path/to/
-├── FileToCreate.kt     # CREATE
-├── FileToModify.kt     # MODIFY
-└── FileToDelete.kt     # DELETE
-```
+Wave A (all independent — start in parallel):
+A1, A2
 
-**Implementation:**
+Wave B:
+A1 ──> B2
+B1, B3 (independent)
 
-1. Step one
-2. Step two
-3. Step three
-
-**Acceptance Criteria:**
-
-- [ ] Criterion one
-- [ ] Criterion two
-- [ ] Criterion three
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
-
-**Verification Commands:**
-
-```bash
-plugin/gradlew compileKotlin
-plugin/gradlew test
-# Add task-specific verification commands
+Wave C:
+A1 ──> C1
+A1 ──> C3
+C2 (independent)
 ```
 
 ---
@@ -73,49 +73,31 @@ plugin/gradlew test
 plugin/gradlew compileKotlin        # Compile check
 plugin/gradlew shadowJar            # Build JAR
 plugin/gradlew test                 # Run unit tests
+plugin/gradlew jacocoTestReport     # Generate coverage report
+plugin/gradlew build                # Full build (test + coverage verification)
 plugin/gradlew runServer            # Run test server (manual)
-plugin/gradlew build                # Full build
 plugin/gradlew installPlugin        # Install to server
 ```
 
 ---
 
-## Creating Dependency Graphs
-
-When planning multiple tasks, create a visual dependency graph:
-
-```
-A1 ──> A2 ──> B1
-       │
-       └──> B2
-
-C1, C2 ──> (independent, can run parallel)
-```
-
-This helps identify:
-- Which tasks can run in parallel
-- Which tasks block others
-- The critical path through the work
-- Potential merge conflict zones
-
----
-
 ## Guardrails
 
-| Rule                           | Value                         | Action                  |
-| ------------------------------ | ----------------------------- | ----------------------- |
-| Max files changed per PR       | 8                             | Split into subtasks     |
-| Max diff lines (added+removed) | 500                           | Split into subtasks     |
-| Compile check                  | `plugin/gradlew compileKotlin`     | Must pass before PR     |
-| Test suite                     | `plugin/gradlew test`              | Must pass before PR     |
-| Code review required           | All PRs                       | Required before merge   |
-| Ambiguity detected             | Missing info, unclear req     | **STOP and ask user**   |
+| Rule                           | Value                              | Action                |
+| ------------------------------ | ---------------------------------- | --------------------- |
+| Max files changed per PR       | 8                                  | Split into subtasks   |
+| Max diff lines (added+removed) | 500                                | Split into subtasks   |
+| Compile check                  | `plugin/gradlew compileKotlin`     | Must pass before PR   |
+| Test suite                     | `plugin/gradlew test`              | Must pass before PR   |
+| Code review required           | All PRs                            | Required before merge |
+| Ambiguity detected             | Missing info                       | **STOP and ask user** |
 
 ---
 
 ## Notes
 
-- Use the task template above for each new task
+- **Start with Wave A** — these are independent and can all be worked on in parallel
+- Each wave unlocks the next; don't skip ahead unless dependencies are met
 - Update status as work progresses (`[ ]` → `[~]` → `[x]`)
-- Archive completed phases to keep file manageable
+- Each task should be completed on its own feature branch and merged via PR
 - See [README.md](README.md) for complete workflow guide
