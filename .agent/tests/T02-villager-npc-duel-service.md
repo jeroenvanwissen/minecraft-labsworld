@@ -2,8 +2,8 @@
 
 **Source:** `src/main/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcDuelService.kt`
 **Test file:** `src/test/kotlin/nl/jeroenlabs/labsWorld/npc/VillagerNpcDuelServiceTest.kt`
-**Current coverage:** 0/117 lines (0%)
-**Target coverage:** ~65%+ of testable lines
+**Status:** ✅ Done (PR #42)
+**Coverage:** Partial — validation, spawn location, and task lifecycle tested; duel execution requires integration tests (Villager class loading)
 
 ## Why This Matters
 117 uncovered lines — the second largest gap. The duel logic has many branches (hit/miss, winner/loser, respawn) that are ideal for unit testing.
