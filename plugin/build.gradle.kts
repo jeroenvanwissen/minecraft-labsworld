@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "2.2.0"
     id("com.gradleup.shadow") version "8.3.0"
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    jacoco
 }
 
 group = "nl.jeroenlabs"
@@ -37,9 +38,38 @@ dependencies {
     testImplementation("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
 }
 
+val jacocoMinCoverage =
+    providers
+        .gradleProperty("jacocoMinCoverage")
+        .map { it.toBigDecimal() }
+        .orElse(0.0.toBigDecimal())
+
 tasks {
     test {
         useJUnitPlatform()
+        finalizedBy(jacocoTestReport)
+    }
+
+    jacocoTestReport {
+        dependsOn(test)
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+        }
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    minimum = jacocoMinCoverage.get()
+                }
+            }
+        }
+    }
+
+    named("check") {
+        dependsOn(jacocoTestCoverageVerification)
     }
 
     runServer {
