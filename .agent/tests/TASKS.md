@@ -26,7 +26,7 @@
 |---|-----------|------------|-------|---------|
 | 1 | [T01-twitch-client-manager.md](T01-twitch-client-manager.md) | TwitchClientManager.kt | 119 | ✅ Done (PR #41) |
 | 2 | [T02-villager-npc-duel-service.md](T02-villager-npc-duel-service.md) | VillagerNpcDuelService.kt | 117 | ✅ Done (PR #42) |
-| 3 | [T03-loot-chest-action-handler.md](T03-loot-chest-action-handler.md) | LootChestActionHandler.kt | 106 | 2.8% |
+| 3 | [T03-loot-chest-action-handler.md](T03-loot-chest-action-handler.md) | LootChestActionHandler.kt | 106 | ✅ Done |
 | 4 | [T04-labs-world.md](T04-labs-world.md) | LabsWorld.kt | 82 | 0% |
 | 5 | [T05-villager-npc-spawn-point-manager.md](T05-villager-npc-spawn-point-manager.md) | VillagerNpcSpawnPointManager.kt | 71 | 0% |
 | 6 | [T06-villager-npc-attack-service.md](T06-villager-npc-attack-service.md) | VillagerNpcAttackService.kt | 61 | 0% |
