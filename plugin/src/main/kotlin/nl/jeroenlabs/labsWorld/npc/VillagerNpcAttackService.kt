@@ -13,6 +13,9 @@ class VillagerNpcAttackService(
     private var runningTask: BukkitTask? = null
     private val lastHitAtMsByNpcId = HashMap<UUID, Long>()
 
+    val isActive: Boolean
+        get() = runningTask?.let { !it.isCancelled } ?: false
+
     /**
      * "Real attack" while keeping linked NPCs as villagers:
      * villagers chase the player and the plugin applies melee damage when in range.
@@ -28,13 +31,10 @@ class VillagerNpcAttackService(
         if (damageHeartsPerHit <= 0.0) return Result.failure(IllegalArgumentException("damageHeartsPerHit must be > 0"))
         if (hitCooldownMs <= 0L) return Result.failure(IllegalArgumentException("hitCooldownMs must be > 0"))
 
+        if (isActive) return Result.failure(IllegalStateException("An attack is already in progress"))
+
         val npcs = linkManager.findAllLinkedVillagerNpcs()
         if (npcs.isEmpty()) return Result.success(0)
-
-        // If already running, replace the current run with a new one.
-        runningTask?.cancel()
-        runningTask = null
-        lastHitAtMsByNpcId.clear()
 
         val durationTicks = 20L * durationSeconds.toLong()
         val periodTicks = 2L // 0.1s for smoother chasing + hit detection

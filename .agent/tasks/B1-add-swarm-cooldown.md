@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `B1`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | Medium       |
 | **Dependencies** | None         |
 | **Branch**       | `fix/b1-swarm-cooldown` |
@@ -27,11 +27,11 @@ plugin/src/main/kotlin/nl/jeroenlabs/labsWorld/
 
 **Acceptance Criteria:**
 
-- [ ] Starting a swarm while one is active returns a failure result
-- [ ] Starting an attack while one is active returns a failure result
-- [ ] Active state is cleared when the operation completes
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] Starting a swarm while one is active returns a failure result
+- [x] Starting an attack while one is active returns a failure result
+- [x] Active state is cleared when the operation completes
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 
