@@ -47,6 +47,14 @@ _Tighten permissions and improve error reporting for edge cases._
 | `[x]`  | `C2` | [Improve Spawn Point Error Messages](tasks/C2-spawn-point-error-messages.md)  | Medium   | None         |
 | `[x]`  | `C3` | [Add Duel Accept/Timeout Flow](tasks/C3-duel-accept-timer.md)                 | Medium   | A1           |
 
+### Features
+
+_New gameplay features._
+
+| Status | ID    | Task                                                    | Priority | Dependencies |
+| ------ | ----- | ------------------------------------------------------- | -------- | ------------ |
+| `[x]`  | `A06` | [NPC Leveling System](tasks/A06-npc-levels.md)          | Medium   | None         |
+
 ---
 
 ## Dependency Graph

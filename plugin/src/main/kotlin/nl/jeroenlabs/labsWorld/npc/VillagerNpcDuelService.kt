@@ -20,6 +20,7 @@ class VillagerNpcDuelService(
     private val npcLinkManager: VillagerNpcLinkManager,
     private val npcSpawnPointManager: VillagerNpcSpawnPointManager,
     private val configManager: TwitchConfigManager,
+    private val levelService: VillagerNpcLevelService? = null,
 ) {
     companion object {
         const val CHALLENGE_TIMEOUT_TICKS = 1200L // 60 seconds
@@ -219,8 +220,24 @@ class VillagerNpcDuelService(
 
                 announce("${label(winnerName)} wins! ${label(loserName)} is down.")
 
-                // Restore winner invulnerability now that the duel is over.
+                // Award XP: winner gets win XP, loser gets participation XP.
                 val winnerNpc = if (aDead) npcB else npcA
+                levelService?.let { ls ->
+                    if (winnerNpc.isValid) {
+                        val winResult = ls.addXp(winnerNpc, VillagerNpcLevelService.DUEL_WIN_XP)
+                        if (winResult.leveledUp) {
+                            announce("${label(winnerName)}'s NPC leveled up to Lv.${winResult.newLevel}!")
+                        }
+                    }
+                    if (loserNpc.isValid) {
+                        val loseResult = ls.addXp(loserNpc, VillagerNpcLevelService.DUEL_PARTICIPATION_XP)
+                        if (loseResult.leveledUp) {
+                            announce("${label(loserName)}'s NPC leveled up to Lv.${loseResult.newLevel}!")
+                        }
+                    }
+                }
+
+                // Restore winner invulnerability now that the duel is over.
                 if (winnerNpc.isValid) {
                     winnerNpc.isInvulnerable = true
                 }
