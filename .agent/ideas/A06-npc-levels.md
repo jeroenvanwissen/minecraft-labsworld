@@ -3,7 +3,7 @@
 | Field            | Value                          |
 | ---------------- | ------------------------------ |
 | **ID**           | `A06`                          |
-| **Status**       | `[ ]`                          |
+| **Status**       | `[x]`                          |
 | **Dependencies** | None                           |
 | **Branch**       | `feature/a06-npc-levels`       |
 

@@ -3,6 +3,7 @@ package nl.jeroenlabs.labsWorld
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcSwarmService
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcAttackService
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcDuelService
+import nl.jeroenlabs.labsWorld.npc.VillagerNpcLevelService
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcLinkManager
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcManager
 import nl.jeroenlabs.labsWorld.npc.VillagerNpcSpawnPointListener
@@ -26,6 +27,7 @@ class LabsWorld : JavaPlugin() {
     private lateinit var npcLinkManager: VillagerNpcLinkManager
     private lateinit var npcSwarmService: VillagerNpcSwarmService
     private lateinit var npcAttackService: VillagerNpcAttackService
+    private lateinit var npcLevelService: VillagerNpcLevelService
     private lateinit var npcDuelService: VillagerNpcDuelService
 
     private val twitchReloadInProgress = AtomicBoolean(false)
@@ -74,7 +76,15 @@ class LabsWorld : JavaPlugin() {
         server.pluginManager.registerEvents(VillagerNpcSpawnPointListener(npcSpawnPointManager), this)
         server.scheduler.runTask(this, Runnable { npcSpawnPointManager.reconcileStoredSpawnPoints() })
 
-        npcDuelService = VillagerNpcDuelService(this, npcLinkManager, npcSpawnPointManager, twitchConfigManager)
+        npcLevelService = VillagerNpcLevelService(this, npcLinkManager)
+        npcDuelService = VillagerNpcDuelService(this, npcLinkManager, npcSpawnPointManager, twitchConfigManager, npcLevelService)
+
+        // Update name tags with level prefix for all loaded NPCs on startup.
+        server.scheduler.runTask(this, Runnable {
+            npcLinkManager.findAllLinkedVillagerNpcs().forEach { npc ->
+                npcLevelService.updateNameTag(npc)
+            }
+        })
 
         registerCommand("labsworld", LabsWorldPaperCommand(this))
     }
@@ -89,7 +99,16 @@ class LabsWorld : JavaPlugin() {
         userId: String,
         userName: String,
         spawnLocation: Location,
-    ): Result<String> = npcLinkManager.ensureNpcAtWithChunkLoad(userId, userName, spawnLocation)
+    ): Result<String> {
+        val result = npcLinkManager.ensureNpcAtWithChunkLoad(userId, userName, spawnLocation)
+        // Update name tag with level prefix after spawn/teleport.
+        result.onSuccess {
+            npcLinkManager.findLoadedNpcByUserId(userId)?.let { npc ->
+                npcLevelService.updateNameTag(npc)
+            }
+        }
+        return result
+    }
 
     fun startSwarmAllNpcs(
         target: Player,
@@ -157,6 +176,14 @@ class LabsWorld : JavaPlugin() {
     fun getNpcByUserId(userId: String): Villager? = npcLinkManager.findLoadedNpcByUserId(userId)
 
     fun getStoredLinkedUserName(userId: String): String? = npcLinkManager.getStoredUserName(userId)
+
+    fun getNpcLevel(villager: Villager): Int = npcLevelService.getLevel(villager)
+
+    fun getNpcXp(villager: Villager): Int = npcLevelService.getXp(villager)
+
+    fun getNpcXpForNextLevel(currentLevel: Int): Int = npcLevelService.xpForNextLevel(currentLevel)
+
+    fun getNpcTotalXpForLevel(level: Int): Int = npcLevelService.totalXpForLevel(level)
 
     fun createNpcDuelChallenge(
         challengerId: String,

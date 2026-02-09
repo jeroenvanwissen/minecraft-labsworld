@@ -6,6 +6,7 @@ object LwSubcommands {
         HelpSubcommand,
         DuelSubcommand,
         AcceptSubcommand,
+        LevelSubcommand,
         ReloadSubcommand,
     )
 }
