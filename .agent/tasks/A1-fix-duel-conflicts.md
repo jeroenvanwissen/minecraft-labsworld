@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `A1`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | Critical     |
 | **Dependencies** | None         |
 | **Branch**       | `fix/a1-duel-conflicts` |
@@ -40,11 +40,11 @@ plugin/src/test/kotlin/nl/jeroenlabs/labsWorld/
 
 **Acceptance Criteria:**
 
-- [ ] Starting a duel while one is running returns a failure result
-- [ ] The chat user receives feedback that a duel is already in progress
-- [ ] The first duel continues uninterrupted when a second is requested
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] Starting a duel while one is running returns a failure result
+- [x] The chat user receives feedback that a duel is already in progress
+- [x] The first duel continues uninterrupted when a second is requested
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 

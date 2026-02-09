@@ -63,6 +63,21 @@ Detailed conventions are in `.claude/rules/`:
 | [rules/testing.md](rules/testing.md)       | Testing conventions and requirements |
 | [rules/security.md](rules/security.md)     | Security requirements and practices  |
 
+## Documentation Maintenance
+
+When making changes to the codebase, update all affected documentation files to stay in sync:
+
+| File                                       | Update when...                                     |
+| ------------------------------------------ | -------------------------------------------------- |
+| [README.md](../README.md)                  | Features, architecture, config, or usage changes   |
+| [.agent/TASKS.md](../.agent/TASKS.md)      | Task status changes (started, completed, blocked)  |
+| [.agent/README.md](../.agent/README.md)    | Workflow or tooling changes                        |
+| [.claude/CLAUDE.md](./)                    | Architecture, key decisions, or structure changes  |
+| [rules/code-style.md](rules/code-style.md) | New patterns, naming conventions, or style changes |
+| [rules/project.md](rules/project.md)       | New files, directories, or dependency changes      |
+| [rules/security.md](rules/security.md)     | Security-relevant changes or new validations       |
+| [rules/testing.md](rules/testing.md)       | New test files, patterns, or framework changes     |
+
 ## Tasks
 
 See [.agent/TASKS.md](../.agent/TASKS.md) for the project backlog and task details.

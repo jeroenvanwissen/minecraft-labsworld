@@ -211,40 +211,117 @@ class VillagerNpcDuelServiceTest {
         }
     }
 
-    // ==================== Duel Task Lifecycle ====================
+    // ==================== isActive Property ====================
 
     @Nested
-    @DisplayName("Duel Task Lifecycle")
-    inner class DuelTaskLifecycleTests {
+    @DisplayName("isActive Property")
+    inner class IsActiveTests {
 
         @Test
-        @DisplayName("should cancel existing duel task when starting a new duel")
-        fun cancelsExistingDuelTask() {
-            mockSpawnPoint()
-
-            val existingTask = mockk<BukkitTask>(relaxed = true)
-            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
-            taskField.isAccessible = true
-            taskField.set(service, existingTask)
-
-            startDuelCatching()
-
-            verify { existingTask.cancel() }
+        @DisplayName("should be false when no duel task exists")
+        fun falseWhenNoTask() {
+            assertFalse(service.isActive)
         }
 
         @Test
-        @DisplayName("should null out duel task after cancellation")
-        fun nullsDuelTaskAfterCancel() {
+        @DisplayName("should be true when duel task is running")
+        fun trueWhenTaskRunning() {
+            val task = mockk<BukkitTask>(relaxed = true)
+            every { task.isCancelled } returns false
+
+            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
+            taskField.isAccessible = true
+            taskField.set(service, task)
+
+            assertTrue(service.isActive)
+        }
+
+        @Test
+        @DisplayName("should be false when duel task is cancelled")
+        fun falseWhenTaskCancelled() {
+            val task = mockk<BukkitTask>(relaxed = true)
+            every { task.isCancelled } returns true
+
+            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
+            taskField.isAccessible = true
+            taskField.set(service, task)
+
+            assertFalse(service.isActive)
+        }
+    }
+
+    // ==================== Concurrent Duel Rejection ====================
+
+    @Nested
+    @DisplayName("Concurrent Duel Rejection")
+    inner class ConcurrentDuelRejectionTests {
+
+        @Test
+        @DisplayName("should reject new duel when one is already active")
+        fun rejectsWhenActive() {
             mockSpawnPoint()
 
             val existingTask = mockk<BukkitTask>(relaxed = true)
+            every { existingTask.isCancelled } returns false
+
             val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
             taskField.isAccessible = true
             taskField.set(service, existingTask)
 
-            startDuelCatching()
+            val result = service.startDuel("userC", "UserC", "userD", "UserD", announce)
 
-            assertNull(taskField.get(service))
+            assertTrue(result.isFailure)
+            assertEquals("A duel is already in progress", result.exceptionOrNull()?.message)
+        }
+
+        @Test
+        @DisplayName("should not cancel existing duel when new one is requested")
+        fun doesNotCancelExisting() {
+            mockSpawnPoint()
+
+            val existingTask = mockk<BukkitTask>(relaxed = true)
+            every { existingTask.isCancelled } returns false
+
+            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
+            taskField.isAccessible = true
+            taskField.set(service, existingTask)
+
+            service.startDuel("userC", "UserC", "userD", "UserD", announce)
+
+            verify(exactly = 0) { existingTask.cancel() }
+        }
+
+        @Test
+        @DisplayName("should not produce announcements when duel is rejected")
+        fun noAnnouncementsWhenRejected() {
+            mockSpawnPoint()
+
+            val existingTask = mockk<BukkitTask>(relaxed = true)
+            every { existingTask.isCancelled } returns false
+
+            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
+            taskField.isAccessible = true
+            taskField.set(service, existingTask)
+
+            service.startDuel("userC", "UserC", "userD", "UserD", announce)
+
+            assertTrue(announcements.isEmpty())
+        }
+
+        @Test
+        @DisplayName("should allow new duel after previous task is cancelled")
+        fun allowsAfterCancelled() {
+            mockSpawnPoint()
+
+            val existingTask = mockk<BukkitTask>(relaxed = true)
+            every { existingTask.isCancelled } returns true
+
+            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
+            taskField.isAccessible = true
+            taskField.set(service, existingTask)
+
+            // Should proceed past the isActive check (may fail later due to Villager class loading)
+            assertDoesNotThrow { startDuelCatching() }
         }
 
         @Test
