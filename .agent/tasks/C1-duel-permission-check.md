@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `C1`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | High         |
 | **Dependencies** | A1           |
 | **Branch**       | `fix/c1-duel-permission` |
@@ -26,11 +26,11 @@ plugin/src/main/kotlin/nl/jeroenlabs/labsWorld/
 
 **Acceptance Criteria:**
 
-- [ ] Viewers below the configured permission level cannot initiate duels
-- [ ] Unauthorized duel attempts result in a chat message explaining the requirement
-- [ ] The permission level is configurable in `twitch.config.yml`
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] Viewers below the configured permission level cannot initiate duels
+- [x] Unauthorized duel attempts result in a chat message explaining the requirement
+- [x] The permission level is configurable in `twitch.config.yml`
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 

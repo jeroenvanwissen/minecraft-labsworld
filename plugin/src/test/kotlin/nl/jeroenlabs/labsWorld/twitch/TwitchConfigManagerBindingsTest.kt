@@ -448,6 +448,7 @@ class TwitchConfigManagerBindingsTest {
             assertEquals(1.9, config.attackRange)
             assertEquals(10, config.maxHp)
             assertEquals(10L, config.respawnDelaySeconds)
+            assertEquals(Permission.SUBSCRIBER, config.permission)
         }
 
         @Test
@@ -462,6 +463,7 @@ class TwitchConfigManagerBindingsTest {
             assertEquals(3.5, config.attackRange)
             assertEquals(20, config.maxHp)
             assertEquals(5L, config.respawnDelaySeconds)
+            assertEquals(Permission.MODERATOR, config.permission)
         }
 
         @Test
@@ -477,6 +479,7 @@ class TwitchConfigManagerBindingsTest {
             assertEquals(1.9, config.attackRange)
             assertEquals(10, config.maxHp)
             assertEquals(10L, config.respawnDelaySeconds)
+            assertEquals(Permission.SUBSCRIBER, config.permission)
         }
     }
 

@@ -59,6 +59,7 @@ class VillagerNpcDuelServiceTest {
             attackRange = 1.9,
             maxHp = 10,
             respawnDelaySeconds = 10L,
+            permission = nl.jeroenlabs.labsWorld.twitch.commands.Permission.SUBSCRIBER,
         )
 
         service = VillagerNpcDuelService(plugin, npcLinkManager, npcSpawnPointManager, configManager)
