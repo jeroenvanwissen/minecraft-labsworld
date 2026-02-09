@@ -1,5 +1,6 @@
 package nl.jeroenlabs.labsWorld.npc
 
+import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import org.bukkit.Location
 import org.bukkit.attribute.Attribute
 import org.bukkit.entity.Villager
@@ -10,15 +11,15 @@ import kotlin.random.Random
 /**
  * Manages NPC duels between Twitch-linked villagers.
  *
- * - Each NPC has 10 hearts (10 hits)
- * - Each successful hit removes 1 heart
- * - Random hit/miss each round
- * - Loser NPC is removed and respawned at the spawn point after 10 seconds
+ * Duel parameters (hit chance, speed, attack range, max HP, respawn delay)
+ * are read from `twitch.config.yml` at the start of each duel so that
+ * config changes take effect without a server restart.
  */
 class VillagerNpcDuelService(
     private val plugin: JavaPlugin,
     private val npcLinkManager: VillagerNpcLinkManager,
     private val npcSpawnPointManager: VillagerNpcSpawnPointManager,
+    private val configManager: TwitchConfigManager,
 ) {
     private var duelTask: BukkitTask? = null
 
@@ -62,14 +63,15 @@ class VillagerNpcDuelService(
             return Result.failure(IllegalStateException("Could not load both NPCs"))
         }
 
-        // Duel HP is tracked in-plugin (NPCs are invulnerable by design).
-        var hpA = 10
-        var hpB = 10
-        val hitChance = 0.65
-        val speed = 1.15
-        val attackRange = 1.9
+        // Read duel parameters from config (re-read each duel so changes take effect).
+        val duelConfig = configManager.getDuelConfig()
+        var hpA = duelConfig.maxHp
+        var hpB = duelConfig.maxHp
+        val hitChance = duelConfig.hitChance
+        val speed = duelConfig.speed
+        val attackRange = duelConfig.attackRange
         val attackRangeSq = attackRange * attackRange
-        val damageAmount = 2.0 // 1 heart
+        val damageAmount = 2.0 // 1 heart (visual feedback)
 
         fun label(name: String) = "@${name}".trim()
 
@@ -179,7 +181,7 @@ class VillagerNpcDuelService(
                         val winnerNpcFinal: Villager? = npcLinkManager.findLoadedNpcByUserId(winnerId)
                         winnerNpcFinal?.let { if (it.isValid) it.teleport(respawnLoc.clone().add(1.0, 0.0, 0.0)) }
                     },
-                    20L * 10L,
+                    20L * duelConfig.respawnDelaySeconds,
                 )
             },
             0L,

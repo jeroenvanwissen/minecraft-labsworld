@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `B2`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | Medium       |
 | **Dependencies** | A1           |
 | **Branch**       | `feature/b2-configurable-duel-params` |
@@ -42,11 +42,11 @@ plugin/src/main/resources/
 
 **Acceptance Criteria:**
 
-- [ ] Duel parameters are read from config with defaults matching current hardcoded values
-- [ ] Missing config values fall back to current defaults (no breaking change)
-- [ ] Config changes take effect on next duel (not requiring server restart)
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] Duel parameters are read from config with defaults matching current hardcoded values
+- [x] Missing config values fall back to current defaults (no breaking change)
+- [x] Config changes take effect on next duel (not requiring server restart)
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 
