@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `A2`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | High         |
 | **Dependencies** | None         |
 | **Branch**       | `fix/a2-chunk-loading` |
@@ -35,11 +35,11 @@ plugin/src/main/kotlin/nl/jeroenlabs/labsWorld/
 
 **Acceptance Criteria:**
 
-- [ ] Chunk loading failures are logged with world name and coordinates
-- [ ] NPC spawn gracefully fails instead of proceeding with invalid state
-- [ ] World existence is validated before chunk operations
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] Chunk loading failures are logged with world name and coordinates
+- [x] NPC spawn gracefully fails instead of proceeding with invalid state
+- [x] World existence is validated before chunk operations
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 
