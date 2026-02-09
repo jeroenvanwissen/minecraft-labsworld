@@ -193,6 +193,7 @@ class TwitchConfigManager(
         val attackRange: Double,
         val maxHp: Int,
         val respawnDelaySeconds: Long,
+        val permission: Permission,
     )
 
     fun getDuelConfig(): DuelConfig {
@@ -203,6 +204,7 @@ class TwitchConfigManager(
             attackRange = anyToDouble(section?.get("attack_range"), 1.9),
             maxHp = anyToInt(section?.get("max_hp"), 10),
             respawnDelaySeconds = anyToInt(section?.get("respawn_delay_seconds"), 10).toLong(),
+            permission = parsePermission(anyToString(section?.get("permission")) ?: "subscriber"),
         )
     }
 

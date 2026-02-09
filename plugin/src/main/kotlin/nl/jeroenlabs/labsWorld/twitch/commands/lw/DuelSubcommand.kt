@@ -1,5 +1,6 @@
 package nl.jeroenlabs.labsWorld.twitch.commands.lw
 
+import nl.jeroenlabs.labsWorld.twitch.TwitchAuth
 import nl.jeroenlabs.labsWorld.twitch.TwitchContext
 import nl.jeroenlabs.labsWorld.twitch.commands.CommandInvocation
 
@@ -7,6 +8,11 @@ object DuelSubcommand : LwSubcommand {
     override val name = "duel"
 
     override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
+        val duelConfig = ctx.twitchConfigManager.getDuelConfig()
+        if (!TwitchAuth.isAuthorized(duelConfig.permission, inv.event)) {
+            return inv.replyMention("You need to be at least a ${duelConfig.permission.name.lowercase()} to start a duel.")
+        }
+
         val plugin = ctx.labsWorld()
 
         // Require invoker to have an NPC

@@ -1,6 +1,7 @@
 channel_name: ""
 
 duel:
+  permission: moderator
   hit_chance: 0.80
   speed: 2.0
   attack_range: 3.5
