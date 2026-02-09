@@ -343,4 +343,216 @@ class VillagerNpcDuelServiceTest {
             assertDoesNotThrow { startDuelCatching() }
         }
     }
+
+    // ==================== createChallenge ====================
+
+    @Nested
+    @DisplayName("createChallenge")
+    inner class CreateChallengeTests {
+
+        @Test
+        @DisplayName("should create a pending challenge and announce it")
+        fun createsChallenge() {
+            val result = service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            assertTrue(result.isSuccess)
+            assertTrue(service.hasPendingChallenge)
+            assertEquals(1, announcements.size)
+            assertTrue(announcements[0].contains("@UserB"))
+            assertTrue(announcements[0].contains("@UserA"))
+            assertTrue(announcements[0].contains("!lw accept"))
+        }
+
+        @Test
+        @DisplayName("should fail when challenger and challenged are the same")
+        fun failsWhenSameUser() {
+            val result = service.createChallenge("user1", "User1", "user1", "User1", announce)
+
+            assertTrue(result.isFailure)
+            assertEquals("Cannot duel yourself", result.exceptionOrNull()?.message)
+            assertFalse(service.hasPendingChallenge)
+        }
+
+        @Test
+        @DisplayName("should fail when a duel is already active")
+        fun failsWhenDuelActive() {
+            val existingTask = mockk<BukkitTask>(relaxed = true)
+            every { existingTask.isCancelled } returns false
+
+            val taskField = VillagerNpcDuelService::class.java.getDeclaredField("duelTask")
+            taskField.isAccessible = true
+            taskField.set(service, existingTask)
+
+            val result = service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            assertTrue(result.isFailure)
+            assertEquals("A duel is already in progress", result.exceptionOrNull()?.message)
+        }
+
+        @Test
+        @DisplayName("should fail when a challenge is already pending")
+        fun failsWhenChallengePending() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            val result = service.createChallenge("userC", "UserC", "userD", "UserD", announce)
+
+            assertTrue(result.isFailure)
+            assertEquals("A challenge is already pending", result.exceptionOrNull()?.message)
+        }
+
+        @Test
+        @DisplayName("should schedule a timeout task")
+        fun schedulesTimeoutTask() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            verify {
+                scheduler.runTaskLater(
+                    plugin,
+                    any<Runnable>(),
+                    VillagerNpcDuelService.CHALLENGE_TIMEOUT_TICKS,
+                )
+            }
+        }
+    }
+
+    // ==================== acceptChallenge ====================
+
+    @Nested
+    @DisplayName("acceptChallenge")
+    inner class AcceptChallengeTests {
+
+        @Test
+        @DisplayName("should return the pending challenge when accepted by the challenged user")
+        fun acceptsByCorrectUser() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            val result = service.acceptChallenge("userB")
+
+            assertTrue(result.isSuccess)
+            val challenge = result.getOrThrow()
+            assertEquals("userA", challenge.challengerId)
+            assertEquals("UserA", challenge.challengerName)
+            assertEquals("userB", challenge.challengedId)
+            assertEquals("UserB", challenge.challengedName)
+        }
+
+        @Test
+        @DisplayName("should clear pending challenge after acceptance")
+        fun clearsPendingAfterAccept() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            service.acceptChallenge("userB")
+
+            assertFalse(service.hasPendingChallenge)
+        }
+
+        @Test
+        @DisplayName("should cancel timeout task after acceptance")
+        fun cancelsTimeoutTask() {
+            val timeoutTaskMock = mockk<BukkitTask>(relaxed = true)
+            every {
+                scheduler.runTaskLater(plugin, any<Runnable>(), VillagerNpcDuelService.CHALLENGE_TIMEOUT_TICKS)
+            } returns timeoutTaskMock
+
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+            service.acceptChallenge("userB")
+
+            verify { timeoutTaskMock.cancel() }
+        }
+
+        @Test
+        @DisplayName("should fail when no challenge is pending")
+        fun failsWhenNoPending() {
+            val result = service.acceptChallenge("userB")
+
+            assertTrue(result.isFailure)
+            assertEquals("No pending challenge to accept", result.exceptionOrNull()?.message)
+        }
+
+        @Test
+        @DisplayName("should fail when wrong user tries to accept")
+        fun failsWhenWrongUser() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            val result = service.acceptChallenge("userC")
+
+            assertTrue(result.isFailure)
+            assertEquals("You are not the challenged player", result.exceptionOrNull()?.message)
+            assertTrue(service.hasPendingChallenge, "Challenge should remain pending")
+        }
+    }
+
+    // ==================== Challenge Timeout ====================
+
+    @Nested
+    @DisplayName("Challenge Timeout")
+    inner class ChallengeTimeoutTests {
+
+        @Test
+        @DisplayName("should clear pending challenge and announce expiry when timeout fires")
+        fun timeoutClearsChallenge() {
+            val capturedRunnable = slot<Runnable>()
+            every {
+                scheduler.runTaskLater(plugin, capture(capturedRunnable), VillagerNpcDuelService.CHALLENGE_TIMEOUT_TICKS)
+            } returns mockk(relaxed = true)
+
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+            announcements.clear()
+
+            capturedRunnable.captured.run()
+
+            assertFalse(service.hasPendingChallenge)
+            assertEquals(1, announcements.size)
+            assertTrue(announcements[0].contains("expired"))
+            assertTrue(announcements[0].contains("@UserA"))
+            assertTrue(announcements[0].contains("@UserB"))
+        }
+
+        @Test
+        @DisplayName("should not announce if challenge was already accepted before timeout")
+        fun noAnnounceIfAlreadyAccepted() {
+            val capturedRunnable = slot<Runnable>()
+            every {
+                scheduler.runTaskLater(plugin, capture(capturedRunnable), VillagerNpcDuelService.CHALLENGE_TIMEOUT_TICKS)
+            } returns mockk(relaxed = true)
+
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+            service.acceptChallenge("userB")
+            announcements.clear()
+
+            capturedRunnable.captured.run()
+
+            assertTrue(announcements.isEmpty(), "Should not announce after challenge was already accepted")
+        }
+    }
+
+    // ==================== hasPendingChallenge Property ====================
+
+    @Nested
+    @DisplayName("hasPendingChallenge Property")
+    inner class HasPendingChallengeTests {
+
+        @Test
+        @DisplayName("should be false initially")
+        fun falseInitially() {
+            assertFalse(service.hasPendingChallenge)
+        }
+
+        @Test
+        @DisplayName("should be true after creating a challenge")
+        fun trueAfterCreate() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+
+            assertTrue(service.hasPendingChallenge)
+        }
+
+        @Test
+        @DisplayName("should be false after challenge is accepted")
+        fun falseAfterAccept() {
+            service.createChallenge("userA", "UserA", "userB", "UserB", announce)
+            service.acceptChallenge("userB")
+
+            assertFalse(service.hasPendingChallenge)
+        }
+    }
 }

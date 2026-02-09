@@ -158,13 +158,17 @@ class LabsWorld : JavaPlugin() {
 
     fun getStoredLinkedUserName(userId: String): String? = npcLinkManager.getStoredUserName(userId)
 
-    /**
-     * Starts a simple Twitch NPC duel.
-     * - Each NPC has 10 hearts (10 hits)
-     * - Each successful hit removes 1 heart
-     * - Random hit/miss each round
-     * - Loser NPC is removed and respawned at the spawn point after 10 seconds
-     */
+    fun createNpcDuelChallenge(
+        challengerId: String,
+        challengerName: String,
+        challengedId: String,
+        challengedName: String,
+        announce: (String) -> Unit,
+    ): Result<Unit> = npcDuelService.createChallenge(challengerId, challengerName, challengedId, challengedName, announce)
+
+    fun acceptNpcDuelChallenge(acceptingUserId: String): Result<VillagerNpcDuelService.PendingChallenge> =
+        npcDuelService.acceptChallenge(acceptingUserId)
+
     fun startNpcDuel(
         userAId: String,
         userAName: String,

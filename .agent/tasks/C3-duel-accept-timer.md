@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `C3`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | Medium       |
 | **Dependencies** | A1           |
 | **Branch**       | `feature/c3-duel-accept-timer` |
@@ -39,14 +39,14 @@ plugin/src/test/kotlin/nl/jeroenlabs/labsWorld/
 
 **Acceptance Criteria:**
 
-- [ ] `!lw duel @user` creates a pending challenge and sends a chat message to the challenged user
-- [ ] `!lw accept` by the challenged user starts the duel within the 60-second window
-- [ ] Challenge expires after 60 seconds with a timeout message if not accepted
-- [ ] Only the challenged user can accept (other users get a rejection message)
-- [ ] A new challenge cannot be created while one is already pending
-- [ ] The timeout task is cancelled when the challenge is accepted
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] `!lw duel @user` creates a pending challenge and sends a chat message to the challenged user
+- [x] `!lw accept` by the challenged user starts the duel within the 60-second window
+- [x] Challenge expires after 60 seconds with a timeout message if not accepted
+- [x] Only the challenged user can accept (other users get a rejection message)
+- [x] A new challenge cannot be created while one is already pending
+- [x] The timeout task is cancelled when the challenge is accepted
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 

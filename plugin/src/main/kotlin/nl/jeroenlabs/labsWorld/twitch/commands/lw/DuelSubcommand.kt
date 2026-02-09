@@ -37,7 +37,7 @@ object DuelSubcommand : LwSubcommand {
 
         val targetStoredName = plugin.getStoredLinkedUserName(targetUserId) ?: targetName
 
-        plugin.startNpcDuel(inv.userId, inv.userName, targetUserId, targetStoredName) { msg ->
+        plugin.createNpcDuelChallenge(inv.userId, inv.userName, targetUserId, targetStoredName) { msg ->
             inv.reply(msg)
         }.onFailure { inv.replyMention("Duel failed: ${it.message}") }
     }
