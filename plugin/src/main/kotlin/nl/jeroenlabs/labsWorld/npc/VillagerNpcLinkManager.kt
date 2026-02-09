@@ -196,7 +196,12 @@ class VillagerNpcLinkManager(
         val world = approxLocation.world ?: return null
         val chunk = world.getChunkAt(approxLocation)
         if (!chunk.isLoaded) {
-            chunk.load(true)
+            runCatching { chunk.load(true) }.onFailure { e ->
+                plugin.logger.warning(
+                    "Failed to load chunk at ${world.name} [${approxLocation.blockX}, ${approxLocation.blockZ}]: ${e.message}",
+                )
+                return null
+            }
         }
         return chunk.entities.firstOrNull { it.uniqueId == uuid }
     }
@@ -247,7 +252,14 @@ class VillagerNpcLinkManager(
 
         val chunk = world.getChunkAt(spawnLocation)
         if (!chunk.isLoaded) {
-            chunk.load(true)
+            runCatching { chunk.load(true) }.onFailure { e ->
+                plugin.logger.warning(
+                    "Failed to load chunk at ${world.name} [${spawnLocation.blockX}, ${spawnLocation.blockZ}]: ${e.message}",
+                )
+                return Result.failure(
+                    IllegalStateException("Failed to load chunk at ${world.name} [${spawnLocation.blockX}, ${spawnLocation.blockZ}]"),
+                )
+            }
         }
 
         val result = ensureNpcAt(userId, userName, spawnLocation)

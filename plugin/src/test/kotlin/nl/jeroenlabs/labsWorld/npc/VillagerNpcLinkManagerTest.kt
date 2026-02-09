@@ -1,6 +1,7 @@
 package nl.jeroenlabs.labsWorld.npc
 
 import io.mockk.*
+import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.World
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.*
 import java.io.File
 import java.util.UUID
+import java.util.logging.Logger
 
 /**
  * Unit tests for VillagerNpcLinkManager.
@@ -298,6 +300,78 @@ class VillagerNpcLinkManagerTest {
                 result.exceptionOrNull()?.message?.contains("no world") == true,
                 "Error message should mention 'no world'"
             )
+        }
+
+        @Test
+        @DisplayName("should fail with descriptive message when chunk loading throws")
+        fun failsWhenChunkLoadThrows() {
+            // Arrange
+            val location = mockk<Location>(relaxed = true)
+            val chunk = mockk<Chunk>(relaxed = true)
+            every { location.world } returns world
+            every { location.blockX } returns 100
+            every { location.blockZ } returns 200
+            every { world.name } returns "world_nether"
+            every { world.getChunkAt(location) } returns chunk
+            every { chunk.isLoaded } returns false
+            every { chunk.load(true) } throws RuntimeException("Disk I/O error")
+
+            val logger = mockk<Logger>(relaxed = true)
+            every { plugin.logger } returns logger
+
+            // Act
+            val result = linkManager.ensureNpcAtWithChunkLoad("user123", "testuser", location)
+
+            // Assert
+            assertTrue(result.isFailure)
+            val msg = result.exceptionOrNull()?.message ?: ""
+            assertTrue(msg.contains("world_nether"), "Error should contain world name")
+            assertTrue(msg.contains("100"), "Error should contain block X")
+            assertTrue(msg.contains("200"), "Error should contain block Z")
+        }
+
+        @Test
+        @DisplayName("should log warning when chunk loading fails")
+        fun logsWarningOnChunkLoadFailure() {
+            // Arrange
+            val location = mockk<Location>(relaxed = true)
+            val chunk = mockk<Chunk>(relaxed = true)
+            every { location.world } returns world
+            every { location.blockX } returns 100
+            every { location.blockZ } returns 200
+            every { world.name } returns "world_nether"
+            every { world.getChunkAt(location) } returns chunk
+            every { chunk.isLoaded } returns false
+            every { chunk.load(true) } throws RuntimeException("Disk I/O error")
+
+            val logger = mockk<Logger>(relaxed = true)
+            every { plugin.logger } returns logger
+
+            // Act
+            linkManager.ensureNpcAtWithChunkLoad("user123", "testuser", location)
+
+            // Assert
+            verify { logger.warning(match<String> { it.contains("Failed to load chunk") && it.contains("world_nether") }) }
+        }
+
+        @Test
+        @DisplayName("should not fail when chunk is already loaded")
+        fun succeedsWhenChunkAlreadyLoaded() {
+            // Arrange
+            val location = mockk<Location>(relaxed = true)
+            val chunk = mockk<Chunk>(relaxed = true)
+            every { location.world } returns world
+            every { world.getChunkAt(location) } returns chunk
+            every { chunk.isLoaded } returns true
+
+            // Act — will fail deeper in ensureNpcAt due to Villager registry,
+            // but should get past the chunk loading check without error
+            val result = runCatching {
+                linkManager.ensureNpcAtWithChunkLoad("user123", "testuser", location)
+            }
+
+            // Assert — chunk.load should never be called
+            verify(exactly = 0) { chunk.load(any()) }
         }
     }
 
