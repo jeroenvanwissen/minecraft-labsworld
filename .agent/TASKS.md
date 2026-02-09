@@ -33,7 +33,7 @@ _Add missing validation, cooldowns, and logging to prevent abuse and improve deb
 
 | Status | ID   | Task                                                                      | Priority | Dependencies |
 | ------ | ---- | ------------------------------------------------------------------------- | -------- | ------------ |
-| `[ ]`  | `B1` | [Add Cooldown for Swarm/Attack Services](tasks/B1-add-swarm-cooldown.md)  | Medium   | None         |
+| `[x]`  | `B1` | [Add Cooldown for Swarm/Attack Services](tasks/B1-add-swarm-cooldown.md)  | Medium   | None         |
 | `[ ]`  | `B2` | [Make Duel Parameters Configurable](tasks/B2-configurable-duel-params.md) | Medium   | A1           |
 | `[ ]`  | `B3` | [Add Logging to Redeem Handlers](tasks/B3-add-handler-logging.md)         | Medium   | None         |
 

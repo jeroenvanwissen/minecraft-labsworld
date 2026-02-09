@@ -12,6 +12,9 @@ class VillagerNpcSwarmService(
 ) {
     private var runningTask: BukkitTask? = null
 
+    val isActive: Boolean
+        get() = runningTask?.let { !it.isCancelled } ?: false
+
     /**
      * Makes all linked NPC villagers swarm/chase the target player for [durationSeconds].
      * Returns the number of NPCs that were instructed to chase.
@@ -22,12 +25,10 @@ class VillagerNpcSwarmService(
     ): Result<Int> {
         if (durationSeconds <= 0) return Result.failure(IllegalArgumentException("durationSeconds must be > 0"))
 
+        if (isActive) return Result.failure(IllegalStateException("A swarm is already in progress"))
+
         val npcs = linkManager.findAllLinkedVillagerNpcs()
         if (npcs.isEmpty()) return Result.success(0)
-
-        // If already running, replace the current run with a new one.
-        runningTask?.cancel()
-        runningTask = null
 
         val durationTicks = 20L * durationSeconds.toLong()
         val periodTicks = 10L // re-issue pathing every 0.5s
