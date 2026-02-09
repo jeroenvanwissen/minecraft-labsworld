@@ -44,7 +44,7 @@ _Tighten permissions and improve error reporting for edge cases._
 | Status | ID   | Task                                                                          | Priority | Dependencies |
 | ------ | ---- | ----------------------------------------------------------------------------- | -------- | ------------ |
 | `[x]`  | `C1` | [Add Permission Check on Duel Command](tasks/C1-duel-permission-check.md)     | High     | A1           |
-| `[ ]`  | `C2` | [Improve Spawn Point Error Messages](tasks/C2-spawn-point-error-messages.md)  | Medium   | None         |
+| `[x]`  | `C2` | [Improve Spawn Point Error Messages](tasks/C2-spawn-point-error-messages.md)  | Medium   | None         |
 | `[ ]`  | `C3` | [Add Duel Accept/Timeout Flow](tasks/C3-duel-accept-timer.md)                 | Medium   | A1           |
 
 ---

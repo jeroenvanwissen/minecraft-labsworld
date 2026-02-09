@@ -3,7 +3,7 @@
 | Field            | Value        |
 | ---------------- | ------------ |
 | **ID**           | `C2`         |
-| **Status**       | `[ ]`        |
+| **Status**       | `[x]`        |
 | **Priority**     | Medium       |
 | **Dependencies** | None         |
 | **Branch**       | `fix/c2-spawn-error-messages` |
@@ -26,11 +26,11 @@ plugin/src/main/kotlin/nl/jeroenlabs/labsWorld/
 
 **Acceptance Criteria:**
 
-- [ ] "No spawn points configured" error when spawn point list is empty
-- [ ] "No spawn points in valid worlds" error when worlds are unloaded
-- [ ] Error messages are logged and propagated to calling code
-- [ ] Build passes: `plugin/gradlew compileKotlin`
-- [ ] Tests pass: `plugin/gradlew test`
+- [x] "No spawn points configured" error when spawn point list is empty
+- [x] "No spawn points in valid worlds" error when worlds are unloaded
+- [x] Error messages are logged and propagated to calling code
+- [x] Build passes: `plugin/gradlew compileKotlin`
+- [x] Tests pass: `plugin/gradlew test`
 
 **Verification Commands:**
 

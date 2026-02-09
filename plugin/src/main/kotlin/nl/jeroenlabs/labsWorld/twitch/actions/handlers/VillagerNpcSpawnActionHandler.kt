@@ -9,8 +9,7 @@ class VillagerNpcSpawnActionHandler : ActionHandler {
 
     override fun handle(context: TwitchContext, invocation: ActionInvocation, params: Map<String, Any?>) {
         val plugin = context.plugin
-        val spawnPoint = plugin.pickNpcSpawnPointSpawnLocation()
-            ?: error("No NPC Spawn Point placed. Ask an admin to place one.")
+        val spawnPoint = plugin.pickNpcSpawnPointSpawnLocation().getOrThrow()
 
         plugin.ensureNpcAtSpawnPoint(invocation.userId, invocation.userName, spawnPoint)
             .onSuccess { msg -> context.twitchClient.chat.sendMessage(invocation.channelName, msg) }

@@ -12,7 +12,7 @@ object NpcSpawnHandler : RedeemHandler {
     override fun handle(context: TwitchContext, invocation: RedeemInvocation, params: Map<String, Any?>) {
         val lw = context.plugin
 
-        val spawnPoint = lw.pickNpcSpawnPointSpawnLocation() ?: error("No NPC Spawn Point placed")
+        val spawnPoint = lw.pickNpcSpawnPointSpawnLocation().getOrThrow()
         lw.ensureNpcAtSpawnPoint(invocation.userId, invocation.userName, spawnPoint).getOrThrow()
 
         val message = params["message"] as? String
