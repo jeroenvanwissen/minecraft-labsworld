@@ -148,17 +148,29 @@ class VillagerNpcSpawnPointManager(
      * Reconciles stored spawn points before picking.
      * Returns a location on TOP of the marker block (offset +0.5x, +1y, +0.5z).
      */
-    fun pickSpawnLocation(): Location? {
+    fun pickSpawnLocation(): Result<Location> {
         reconcileStoredSpawnPoints()
 
+        if (spawnPoints.isEmpty()) {
+            val msg = "No spawn points configured. Place an NPC Spawn Point block first."
+            plugin.logger.warning(msg)
+            return Result.failure(IllegalStateException(msg))
+        }
+
         val points = getSpawnPointLocations()
+        if (points.isEmpty()) {
+            val msg = "No spawn points in valid worlds. ${spawnPoints.size} spawn point(s) stored but their worlds are not loaded."
+            plugin.logger.warning(msg)
+            return Result.failure(IllegalStateException(msg))
+        }
+
         val chosen = points
             .sortedWith(
                 compareBy<Location>({ it.world?.uid?.toString() ?: "" }, { it.blockX }, { it.blockY }, { it.blockZ }),
             )
-            .firstOrNull() ?: return null
+            .first()
 
         // Spawn on top of the marker block.
-        return chosen.clone().add(0.5, 1.0, 0.5)
+        return Result.success(chosen.clone().add(0.5, 1.0, 0.5))
     }
 }

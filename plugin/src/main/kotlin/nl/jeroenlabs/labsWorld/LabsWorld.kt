@@ -83,7 +83,7 @@ class LabsWorld : JavaPlugin() {
 
     fun npcSpawnPointCount(): Int = npcSpawnPointManager.getSpawnPointLocations().size
 
-    fun pickNpcSpawnPointSpawnLocation(): Location? = npcSpawnPointManager.pickSpawnLocation()
+    fun pickNpcSpawnPointSpawnLocation(): Result<Location> = npcSpawnPointManager.pickSpawnLocation()
 
     fun ensureNpcAtSpawnPoint(
         userId: String,
