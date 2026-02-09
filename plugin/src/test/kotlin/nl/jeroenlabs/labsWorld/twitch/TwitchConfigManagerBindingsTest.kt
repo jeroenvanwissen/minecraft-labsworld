@@ -430,6 +430,56 @@ class TwitchConfigManagerBindingsTest {
         }
     }
 
+    // ==================== getDuelConfig() Tests ====================
+
+    @Nested
+    @DisplayName("getDuelConfig()")
+    inner class GetDuelConfigTests {
+
+        @Test
+        @DisplayName("should return defaults when duel section is missing")
+        fun defaultsWhenMissing() {
+            loadFixture("empty-config.yml")
+
+            val config = configManager.getDuelConfig()
+
+            assertEquals(0.65, config.hitChance)
+            assertEquals(1.15, config.speed)
+            assertEquals(1.9, config.attackRange)
+            assertEquals(10, config.maxHp)
+            assertEquals(10L, config.respawnDelaySeconds)
+        }
+
+        @Test
+        @DisplayName("should parse custom duel config values")
+        fun customValues() {
+            loadFixture("valid-duel-config.yml")
+
+            val config = configManager.getDuelConfig()
+
+            assertEquals(0.80, config.hitChance)
+            assertEquals(2.0, config.speed)
+            assertEquals(3.5, config.attackRange)
+            assertEquals(20, config.maxHp)
+            assertEquals(5L, config.respawnDelaySeconds)
+        }
+
+        @Test
+        @DisplayName("should return defaults for missing individual duel keys")
+        fun partialConfig() {
+            // missing-sections.yml has no duel section at all
+            loadFixture("missing-sections.yml")
+
+            val config = configManager.getDuelConfig()
+
+            assertEquals(0.65, config.hitChance)
+            assertEquals(1.15, config.speed)
+            assertEquals(1.9, config.attackRange)
+            assertEquals(10, config.maxHp)
+            assertEquals(10L, config.respawnDelaySeconds)
+        }
+    }
+
     // ==================== Reload Version Tests ====================
 
     @Nested

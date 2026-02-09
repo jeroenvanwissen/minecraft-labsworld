@@ -74,7 +74,7 @@ class LabsWorld : JavaPlugin() {
         server.pluginManager.registerEvents(VillagerNpcSpawnPointListener(npcSpawnPointManager), this)
         server.scheduler.runTask(this, Runnable { npcSpawnPointManager.reconcileStoredSpawnPoints() })
 
-        npcDuelService = VillagerNpcDuelService(this, npcLinkManager, npcSpawnPointManager)
+        npcDuelService = VillagerNpcDuelService(this, npcLinkManager, npcSpawnPointManager, twitchConfigManager)
 
         registerCommand("labsworld", LabsWorldPaperCommand(this))
     }

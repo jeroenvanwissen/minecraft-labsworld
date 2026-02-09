@@ -1,6 +1,7 @@
 package nl.jeroenlabs.labsWorld.npc
 
 import io.mockk.*
+import nl.jeroenlabs.labsWorld.twitch.TwitchConfigManager
 import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.plugin.java.JavaPlugin
@@ -31,6 +32,7 @@ class VillagerNpcDuelServiceTest {
     private lateinit var plugin: JavaPlugin
     private lateinit var npcLinkManager: VillagerNpcLinkManager
     private lateinit var npcSpawnPointManager: VillagerNpcSpawnPointManager
+    private lateinit var configManager: TwitchConfigManager
     private lateinit var scheduler: BukkitScheduler
     private lateinit var service: VillagerNpcDuelService
     private lateinit var world: World
@@ -43,6 +45,7 @@ class VillagerNpcDuelServiceTest {
         plugin = mockk(relaxed = true)
         npcLinkManager = mockk(relaxed = true)
         npcSpawnPointManager = mockk(relaxed = true)
+        configManager = mockk(relaxed = true)
         scheduler = mockk(relaxed = true)
         world = mockk(relaxed = true)
 
@@ -50,8 +53,15 @@ class VillagerNpcDuelServiceTest {
         every { world.uid } returns worldUid
 
         every { npcSpawnPointManager.getSpawnPointLocations() } returns emptyList()
+        every { configManager.getDuelConfig() } returns TwitchConfigManager.DuelConfig(
+            hitChance = 0.65,
+            speed = 1.15,
+            attackRange = 1.9,
+            maxHp = 10,
+            respawnDelaySeconds = 10L,
+        )
 
-        service = VillagerNpcDuelService(plugin, npcLinkManager, npcSpawnPointManager)
+        service = VillagerNpcDuelService(plugin, npcLinkManager, npcSpawnPointManager, configManager)
         announcements.clear()
     }
 

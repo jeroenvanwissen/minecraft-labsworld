@@ -3,6 +3,8 @@ package nl.jeroenlabs.labsWorld.twitch
 import nl.jeroenlabs.labsWorld.twitch.actions.ActionConfig
 import nl.jeroenlabs.labsWorld.twitch.commands.Permission
 import nl.jeroenlabs.labsWorld.util.anyToBool
+import nl.jeroenlabs.labsWorld.util.anyToDouble
+import nl.jeroenlabs.labsWorld.util.anyToInt
 import nl.jeroenlabs.labsWorld.util.anyToString
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
@@ -183,6 +185,25 @@ class TwitchConfigManager(
                     .toMap()
             ActionConfig(type = type, params = params)
         }
+    }
+
+    data class DuelConfig(
+        val hitChance: Double,
+        val speed: Double,
+        val attackRange: Double,
+        val maxHp: Int,
+        val respawnDelaySeconds: Long,
+    )
+
+    fun getDuelConfig(): DuelConfig {
+        val section = configYaml.getConfigurationSection("duel")
+        return DuelConfig(
+            hitChance = anyToDouble(section?.get("hit_chance"), 0.65),
+            speed = anyToDouble(section?.get("speed"), 1.15),
+            attackRange = anyToDouble(section?.get("attack_range"), 1.9),
+            maxHp = anyToInt(section?.get("max_hp"), 10),
+            respawnDelaySeconds = anyToInt(section?.get("respawn_delay_seconds"), 10).toLong(),
+        )
     }
 
     fun getTwitchEnvPresence(): Map<String, Boolean> =
