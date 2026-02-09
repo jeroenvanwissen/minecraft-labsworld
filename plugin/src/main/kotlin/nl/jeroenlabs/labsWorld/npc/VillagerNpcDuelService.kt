@@ -21,10 +21,70 @@ class VillagerNpcDuelService(
     private val npcSpawnPointManager: VillagerNpcSpawnPointManager,
     private val configManager: TwitchConfigManager,
 ) {
+    companion object {
+        const val CHALLENGE_TIMEOUT_TICKS = 1200L // 60 seconds
+    }
+
+    data class PendingChallenge(
+        val challengerId: String,
+        val challengerName: String,
+        val challengedId: String,
+        val challengedName: String,
+        val announce: (String) -> Unit,
+    )
+
     private var duelTask: BukkitTask? = null
+    private var pendingChallenge: PendingChallenge? = null
+    private var timeoutTask: BukkitTask? = null
 
     val isActive: Boolean
         get() = duelTask?.let { !it.isCancelled } ?: false
+
+    val hasPendingChallenge: Boolean
+        get() = pendingChallenge != null
+
+    fun createChallenge(
+        challengerId: String,
+        challengerName: String,
+        challengedId: String,
+        challengedName: String,
+        announce: (String) -> Unit,
+    ): Result<Unit> {
+        if (challengerId == challengedId) return Result.failure(IllegalArgumentException("Cannot duel yourself"))
+        if (isActive) return Result.failure(IllegalStateException("A duel is already in progress"))
+        if (hasPendingChallenge) return Result.failure(IllegalStateException("A challenge is already pending"))
+
+        pendingChallenge = PendingChallenge(challengerId, challengerName, challengedId, challengedName, announce)
+
+        timeoutTask = plugin.server.scheduler.runTaskLater(
+            plugin,
+            Runnable {
+                val challenge = pendingChallenge ?: return@Runnable
+                pendingChallenge = null
+                timeoutTask = null
+                challenge.announce("@${challenge.challengerName}'s duel challenge to @${challenge.challengedName} has expired.")
+            },
+            CHALLENGE_TIMEOUT_TICKS,
+        )
+
+        announce("@${challengedName}, you have been challenged to a duel by @${challengerName}! Type !lw accept within 60 seconds.")
+        return Result.success(Unit)
+    }
+
+    fun acceptChallenge(acceptingUserId: String): Result<PendingChallenge> {
+        val challenge = pendingChallenge
+            ?: return Result.failure(IllegalStateException("No pending challenge to accept"))
+
+        if (challenge.challengedId != acceptingUserId) {
+            return Result.failure(IllegalArgumentException("You are not the challenged player"))
+        }
+
+        pendingChallenge = null
+        timeoutTask?.cancel()
+        timeoutTask = null
+
+        return Result.success(challenge)
+    }
 
     /**
      * Starts a duel between two Twitch-linked NPCs.

@@ -7,6 +7,6 @@ object HelpSubcommand : LwSubcommand {
     override val name = "help"
 
     override fun handle(ctx: TwitchContext, inv: CommandInvocation) {
-        inv.replyMention("Commands: duel @user, reload")
+        inv.replyMention("Commands: duel @user, accept, reload")
     }
 }

@@ -5,6 +5,7 @@ object LwSubcommands {
     val all: List<LwSubcommand> = listOf(
         HelpSubcommand,
         DuelSubcommand,
+        AcceptSubcommand,
         ReloadSubcommand,
     )
 }
