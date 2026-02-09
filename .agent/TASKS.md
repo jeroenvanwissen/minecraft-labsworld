@@ -24,7 +24,7 @@ _Fix correctness and reliability issues that can cause data loss or unpredictabl
 
 | Status | ID   | Task                                                                  | Priority | Dependencies |
 | ------ | ---- | --------------------------------------------------------------------- | -------- | ------------ |
-| `[ ]`  | `A1` | [Fix Concurrent Duel Conflicts](tasks/A1-fix-duel-conflicts.md)       | Critical | None         |
+| `[x]`  | `A1` | [Fix Concurrent Duel Conflicts](tasks/A1-fix-duel-conflicts.md)       | Critical | None         |
 | `[ ]`  | `A2` | [Add Error Handling for Chunk Loading](tasks/A2-fix-chunk-loading.md)  | High     | None         |
 
 ### Wave B — Validation & Robustness

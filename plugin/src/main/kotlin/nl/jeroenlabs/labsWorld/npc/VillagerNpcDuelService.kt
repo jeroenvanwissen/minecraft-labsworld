@@ -22,6 +22,9 @@ class VillagerNpcDuelService(
 ) {
     private var duelTask: BukkitTask? = null
 
+    val isActive: Boolean
+        get() = duelTask?.let { !it.isCancelled } ?: false
+
     /**
      * Starts a duel between two Twitch-linked NPCs.
      *
@@ -41,12 +44,10 @@ class VillagerNpcDuelService(
     ): Result<Unit> {
         if (userAId == userBId) return Result.failure(IllegalArgumentException("Cannot duel same user"))
 
+        if (isActive) return Result.failure(IllegalStateException("A duel is already in progress"))
+
         val baseSpawn = pickSpawnLocation()
             ?: return Result.failure(IllegalStateException("No NPC Spawn Point is placed"))
-
-        // Only one duel at a time for now (keeps behavior predictable).
-        duelTask?.cancel()
-        duelTask = null
 
         // Spawn/teleport both NPCs near each other.
         val spawnA = baseSpawn.clone().add(-1.0, 0.0, 0.0)
